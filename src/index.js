@@ -25,7 +25,7 @@ export default {
     // --- iCal feed endpoint ---
     const calendarMatch = path.match(/^\/calendar\/(\d+)\/?$/);
     if (calendarMatch) {
-      return handleCalendarFeed(calendarMatch[1], url, ctx);
+      return handleCalendarFeed(calendarMatch[1], url, ctx, request, env);
     }
 
     // --- Team info JSON API ---
@@ -53,7 +53,19 @@ export default {
 
 // ─── Route Handlers ─────────────────────────────────────────────────────────
 
-async function handleCalendarFeed(teamId, url, ctx) {
+async function handleCalendarFeed(teamId, url, ctx, request, env) {
+  if (env?.AE) {
+    env.AE.writeDataPoint({
+      blobs: [
+        teamId,
+        request.headers.get('CF-Connecting-IP') ?? '',
+        (request.headers.get('user-agent') ?? '').slice(0, 100),
+        request.cf?.country ?? 'XX',
+      ],
+      indexes: [teamId],
+    });
+  }
+
   const cacheKey = new Request(`${url.origin}/calendar/${teamId}`, { method: 'GET' });
   const cache = caches.default;
   const cached = await cache.match(cacheKey);
