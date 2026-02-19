@@ -1,0 +1,20 @@
+{
+  "name": "heartland-soccer-calendar",
+  "main": "src/index.js",
+  "compatibility_date": "2024-09-23",
+  "rules": [
+    { "type": "Text", "globs": ["**/*.csv"], "fallthrough": true }
+  ],
+  "assets": { "directory": "./public" },
+  "analytics_engine_datasets": [
+    { "binding": "AE", "dataset": "calendar_subscriptions" }
+  ],
+  "observability": {
+    "enabled": false,
+    "logs": {
+      "enabled": true,
+      "persist": true,
+      "invocation_logs": true
+    }
+  }
+}
