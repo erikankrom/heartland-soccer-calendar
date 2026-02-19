@@ -1,0 +1,14 @@
+{
+  "name": "heartland-soccer-calendar",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker that merges Heartland Soccer team events into a subscribable iCal feed",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

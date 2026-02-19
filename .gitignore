@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+
+# AI assistants
+.claude/
+.agents/
+.codex/
+
+# Cloudflare Workers
+.wrangler/
+wrangler.toml
+wrangler.*.toml
