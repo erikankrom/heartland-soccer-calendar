@@ -827,7 +827,8 @@ ${FOOTER}
       var t = timeRange(e.dtstart, e.dtend);
       var loc = e.location;
       var locLabel = loc && loc.name ? esc(loc.field + ' \\u2014 ' + loc.name) : (loc && loc.field ? esc(loc.field) : '');
-      html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info"><div class="title">' + esc(e.summary) + '</div><div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + '</div></div>';
+      var mapLink = (loc && loc.mapUrl) ? '<div class="meta"><a href="' + esc(loc.mapUrl) + '" target="_blank" rel="noopener">Field map</a></div>' : '';
+      html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info"><div class="title">' + esc(e.summary) + '</div><div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + mapLink + '</div></div>';
     });
     document.getElementById('eventsList').innerHTML = html;
 
