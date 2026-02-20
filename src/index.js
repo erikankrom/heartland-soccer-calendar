@@ -604,6 +604,80 @@ function htmlHead(title) {
     .sub-link .icon { width: 34px; height: 34px; }
     .event-date { min-width: 40px; }
   }
+
+  /* ── Value Section ── */
+  .value-section {
+    margin-top: 2rem;
+  }
+  .value-section h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+  }
+  .feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    font-size: .95rem;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .feature-list li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: .1em;
+    background: var(--accent);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* checkmark via mask */
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13 4L6.5 11 3 7.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13 4L6.5 11 3 7.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center/contain no-repeat;
+  }
+  .planned-section {
+    margin-top: 1.75rem;
+  }
+  .planned-section h2 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+  .planned-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+  }
+  .planned-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    font-size: .95rem;
+    color: var(--text-dim);
+    line-height: 1.45;
+  }
+  .planned-list li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: .1em;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+  }
 </style>
 </head>`;
 }
