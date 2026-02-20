@@ -11,7 +11,23 @@
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd:plan-phase 1 to break down)
+
+**Details:**
+[To be added during planning]
+
+---
+
+### Phase 2: Homepage Value Section
+
+**Goal:** Add a brief "why this is useful" section to the landing page. Cover key features: subscribing to all games at once (vs adding individually), automatic updates via webcal subscription, enhanced location naming, field map URLs, and native calendar location integration. Also include a "Planned Updates" section listing upcoming features: standings lookup, matchup preview, and game video feed integration.
+**Depends on:** Phase 1
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd:plan-phase 2 to break down)
 
 **Details:**
 [To be added during planning]

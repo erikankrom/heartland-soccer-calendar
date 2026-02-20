@@ -723,8 +723,7 @@ ${NAVBAR}
     <h2>Why use this?</h2>
     <ul class="feature-list">
       <li>Subscribe to all your team's games at once — no more adding events one by one</li>
-      <li>Calendar auto-updates every hour, so new or changed games appear automatically</li>
-      <li>Enhanced venue names (e.g. "OSC Fields at Overland Park Soccer Complex") instead of raw field codes</li>
+      <li>Enhanced venue names (e.g. "GARMIN Olathe Soccer Complex") instead of raw field codes like "OSC 7A"</li>
       <li>Field map links included in each event so you can find the exact field</li>
       <li>Structured location data for native Maps integration on Apple and Google devices</li>
     </ul>
