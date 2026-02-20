@@ -1,35 +1,19 @@
 # Heartland Soccer Calendar — Roadmap
 
-## Current Milestone: v1.0 Launch
+## Milestones
 
----
+- ✅ [v1.0 Launch](milestones/v1.0-launch.md) (Phases 1–2) — SHIPPED 2026-02-20
 
-### Phase 1: Field Map Links
+## Phases
 
-**Goal:** Add a link to the field map on both the subscribe page (events preview) and in the body of the generated iCal calendar events. Uses the `field_map_url` column in `src/locations.csv`.
-**Depends on:** —
-**Plans:** 0 plans
+### ✅ v1.0 Launch (Phases 1–2) — SHIPPED 2026-02-20
 
-Plans:
+- [x] Phase 1: Field Map Links (1/1 plans) — completed 2026-02-20
+- [x] Phase 2: Homepage Value Section (1/1 plans) — completed 2026-02-20
 
-- [ ] TBD (run /gsd:plan-phase 1 to break down)
+## Progress
 
-**Details:**
-[To be added during planning]
-
----
-
-### Phase 2: Homepage Value Section
-
-**Goal:** Add a brief "why this is useful" section to the landing page. Cover key features: subscribing to all games at once (vs adding individually), automatic updates via webcal subscription, enhanced location naming, field map URLs, and native calendar location integration. Also include a "Planned Updates" section listing upcoming features: standings lookup, matchup preview, and game video feed integration.
-**Depends on:** Phase 1
-**Plans:** 0 plans
-
-Plans:
-
-- [ ] TBD (run /gsd:plan-phase 2 to break down)
-
-**Details:**
-[To be added during planning]
-
----
+| Phase                     | Milestone | Plans Complete | Status   | Completed  |
+| ------------------------- | --------- | -------------- | -------- | ---------- |
+| 1. Field Map Links        | v1.0      | 1/1            | Complete | 2026-02-20 |
+| 2. Homepage Value Section | v1.0      | 1/1            | Complete | 2026-02-20 |
