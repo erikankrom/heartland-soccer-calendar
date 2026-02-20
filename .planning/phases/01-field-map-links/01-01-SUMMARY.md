@@ -1,72 +1,100 @@
+---
+phase: 01-field-map-links
+plan: 01
+subsystem: ui
+tags: [ical, calendar, cloudflare-worker, csv, html]
+
+# Dependency graph
+requires: []
+provides:
+  - field_map_url column parsed from src/locations.csv into location objects
+  - resolveLocation() returns mapUrl (string or null) for all 6 known venue prefixes
+  - iCal DESCRIPTION includes "Field map: {url}" line for known venues
+  - Subscribe page event rows show clickable "Field map" anchor for known venues
+
+affects: []
+
+# Tech tracking
+tech-stack:
+  added: []
+  patterns:
+    - CSV column added to locations map; all downstream consumers receive new field automatically via resolveLocation()
+    - Field map URL placed in iCal DESCRIPTION (not URL: property) to avoid conflicting with existing source-page URL
+
+key-files:
+  created: []
+  modified:
+    - src/index.js
+    - src/locations.csv
+
+key-decisions:
+  - "Field map URL goes in iCal DESCRIPTION only — URL: property is already used for the Heartland Soccer source page"
+  - "Subscribe page uses existing meta class + global a { color: var(--accent) } — no extra CSS needed"
+  - "esc() helper applied to loc.mapUrl in client-side JS to prevent XSS"
+
+patterns-established:
+  - "Extend location object by adding a CSV column — resolveLocation() propagates it to all consumers automatically"
+
+# Metrics
+duration: ~30min
+completed: 2026-02-20
+---
+
 # Plan 01-01 Summary: Field Map Links
 
-**Phase:** 01-field-map-links
-**Plan:** 01
-**Status:** Complete — awaiting checkpoint verification
-**Date:** 2026-02-20
+**`field_map_url` from locations.csv surfaced in iCal DESCRIPTION and subscribe page event rows for all 6 known Heartland Soccer venues**
 
-## Objective
+## Performance
 
-Add field map links to both the subscribe page event list and the iCal calendar DESCRIPTION field, so users can tap "Field map" to pull up the venue map from either surface.
+- **Duration:** ~30 min
+- **Started:** 2026-02-20
+- **Completed:** 2026-02-20
+- **Tasks:** 3 (2 auto + 1 human-verify checkpoint)
+- **Files modified:** 1 (src/index.js)
 
-## Tasks Completed
+## Accomplishments
 
-| # | Task | Commit | Files |
-|---|------|--------|-------|
-| 1 | Plumb field_map_url through CSV parsing, location resolution, and iCal DESCRIPTION | `96fc975` | `src/index.js` |
-| 2 | Add Field map link to subscribe page event rows | `cc1ce1b` | `src/index.js` |
+- `parseLocationsCSV` reads new `field_map_url` fourth column and stores it as `mapUrl` in each location entry
+- `resolveLocation()` propagates `mapUrl` through both return paths (known venue and unknown venue fallback)
+- iCal DESCRIPTION includes `\nField map: https://...` for events at all 6 known venue prefixes
+- Subscribe page event rows show a `<a href="{mapUrl}" target="_blank" rel="noopener">Field map</a>` link below the location line for known venues only; unknown venues render no link
 
-## Changes Made
+## Task Commits
 
-### src/index.js
+Each task was committed atomically:
 
-**`parseLocationsCSV` (line 188):**
-Added `mapUrl: fields[3] || null` to the location object stored in the map. This reads the fourth column (`field_map_url`) from `src/locations.csv`.
+1. **Task 1: Plumb field_map_url through CSV parsing, location resolution, and iCal DESCRIPTION** - `96fc975` (feat)
+2. **Task 2: Add Field map link to subscribe page event rows** - `cc1ce1b` (feat)
+3. **Task 3: checkpoint:human-verify** - approved by user
 
-**`resolveLocation` (lines 212–214):**
-Both return paths now include `mapUrl`:
-- Known venue: `mapUrl: complex.mapUrl || null`
-- Unknown venue: `mapUrl: null`
+## Files Created/Modified
 
-**`generateICal` DESCRIPTION building (line 241):**
-After the venue name line, added:
-```js
-if (loc.mapUrl) descParts.push(`Field map: ${loc.mapUrl}`);
-```
-This appends `\nField map: https://...` to the iCal DESCRIPTION for events at known venues.
+- `src/index.js` - parseLocationsCSV, resolveLocation, generateICal DESCRIPTION, and subscribe page client-side JS updated
+- `src/locations.csv` - `field_map_url` column added with map URLs for OSC, OP, CMSF, SSV, HSP, MAW
 
-**Subscribe page client-side JS (lines 830–831):**
-Added `mapLink` variable and included it after `locLabel` in the event HTML:
-```js
-var mapLink = (loc && loc.mapUrl) ? '<div class="meta"><a href="' + esc(loc.mapUrl) + '" target="_blank" rel="noopener">Field map</a></div>' : '';
-```
+## Decisions Made
 
-## Data Flow
+- Field map URL goes in iCal DESCRIPTION only, not in the `URL:` property. The `URL:` property is already used for the Heartland Soccer source page; putting two `URL:` lines in a VEVENT is invalid.
+- Subscribe page uses the existing `meta` CSS class and the global `a { color: var(--accent) }` rule — no extra class needed for the link.
+- `esc()` helper (already defined in the client-side JS block) used on `loc.mapUrl` to prevent XSS.
 
-```
-locations.csv (field_map_url column)
-  → parseLocationsCSV() → { mapUrl }
-  → resolveLocation() → { field, name, address, mapUrl }
-  → generateICal() DESCRIPTION → "Field map: https://..."
-  → handleTeamAPI() JSON response → location.mapUrl
-  → subscribe page JS → <a href="{mapUrl}">Field map</a>
-```
+## Deviations from Plan
 
-## Venues with Map URLs (6 total)
+None - plan executed exactly as written.
 
-| Prefix | Venue |
-|--------|-------|
-| OSC | GARMIN Olathe Soccer Complex |
-| OP | SCHEELS Overland Park Soccer Complex |
-| CMSF | Compass Minerals Sporting Fields |
-| SSV | Swope Soccer Village |
-| HSP | Heritage Soccer Park |
-| MAW | Mid-America West Sports Complex |
+## Issues Encountered
 
-## Checkpoint
+None.
 
-A `checkpoint:human-verify` task follows. The user needs to:
-1. Run `npm run dev`
-2. Visit `/subscribe/{team-id}` and verify "Field map" links appear for known venues
-3. Visit `/calendar/{team-id}` and verify `Field map:` appears in DESCRIPTION
-4. Confirm unknown venues have no link/text
+## User Setup Required
+
+None - no external service configuration required.
+
+## Next Phase Readiness
+
+- Field map links are live in both the subscribe page and iCal feeds for all 6 known venues
+- No blockers for subsequent phases
+
+---
+*Phase: 01-field-map-links*
+*Completed: 2026-02-20*
