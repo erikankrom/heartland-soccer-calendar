@@ -718,6 +718,26 @@ ${NAVBAR}
       <p class="hint">Find the team ID in the URL at <a href="https://calendar.heartlandsoccer.net" target="_blank">calendar.heartlandsoccer.net</a></p>
     </form>
   </div>
+
+  <div class="value-section">
+    <h2>Why use this?</h2>
+    <ul class="feature-list">
+      <li>Subscribe to all your team's games at once — no more adding events one by one</li>
+      <li>Calendar auto-updates every hour, so new or changed games appear automatically</li>
+      <li>Enhanced venue names (e.g. "OSC Fields at Overland Park Soccer Complex") instead of raw field codes</li>
+      <li>Field map links included in each event so you can find the exact field</li>
+      <li>Structured location data for native Maps integration on Apple and Google devices</li>
+    </ul>
+  </div>
+
+  <div class="planned-section">
+    <h2>Planned updates</h2>
+    <ul class="planned-list">
+      <li>Standings lookup — see your team's current league record</li>
+      <li>Matchup preview — opponent info for each upcoming game</li>
+      <li>Game video feed integration — links to match recordings when available</li>
+    </ul>
+  </div>
 </div>
 </div>
 ${FOOTER}
