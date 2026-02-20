@@ -185,7 +185,7 @@ function parseLocationsCSV(text) {
     }
     fields.push(current.trim());
     if (fields.length >= 3) {
-      map[fields[0]] = { name: fields[1], address: fields[2] };
+      map[fields[0]] = { name: fields[1], address: fields[2], mapUrl: fields[3] || null };
     }
   }
   return map;
@@ -209,9 +209,9 @@ function resolveLocation(fieldStr) {
   const locations = getFieldLocations();
   const complex = prefix && locations[prefix];
   if (complex) {
-    return { field: raw, name: complex.name, address: complex.address };
+    return { field: raw, name: complex.name, address: complex.address, mapUrl: complex.mapUrl || null };
   }
-  return { field: raw, name: null, address: null };
+  return { field: raw, name: null, address: null, mapUrl: null };
 }
 
 function generateICal(events, teamId, teamName, sourceUrl) {
@@ -238,6 +238,7 @@ function generateICal(events, teamId, teamName, sourceUrl) {
     if (loc) {
       descParts.push(`Field: ${loc.field}`);
       if (loc.name) descParts.push(loc.name);
+      if (loc.mapUrl) descParts.push(`Field map: ${loc.mapUrl}`);
     } else if (e.description) {
       descParts.push(e.description);
     }
@@ -334,7 +335,7 @@ function htmlHead(title) {
       --icon-copy-border: #3a2a2a;
     }
   }
-  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  html { font-size: clamp(15px, 1vw + 13.5px, 17px); -webkit-text-size-adjust: 100%; }
   body {
     font-family: 'DM Sans', system-ui, sans-serif;
     background: var(--bg);
@@ -343,7 +344,7 @@ function htmlHead(title) {
     display: flex;
     flex-direction: column;
     margin: 0;
-    line-height: 1.55;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }
@@ -352,9 +353,9 @@ function htmlHead(title) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2.5rem 1.25rem 3rem;
+    padding: 2.5rem 1.5rem 3rem;
   }
-  .container { width: 100%; max-width: 540px; }
+  .container { width: 100%; max-width: 700px; }
 
   /* ── Navbar ── */
   .navbar {
@@ -365,11 +366,11 @@ function htmlHead(title) {
     justify-content: center;
     gap: .6rem;
   }
-  .navbar img { width: 30px; height: 30px; }
+  .navbar img { width: 32px; height: 32px; }
   .navbar span {
     color: #fff;
     font-weight: 700;
-    font-size: .95rem;
+    font-size: 1rem;
     letter-spacing: -.01em;
   }
 
@@ -379,10 +380,15 @@ function htmlHead(title) {
     color: #999;
     padding: 1.25rem 1.25rem;
     text-align: center;
-    font-size: .75rem;
+    font-size: .85rem;
   }
   .site-footer a { color: #ccc; }
   .site-footer a:hover { color: #fff; }
+  .footer-credit {
+    display: inline-flex; align-items: center; gap: .4rem;
+    color: #777; transition: color .2s;
+  }
+  .footer-credit:hover { color: #ccc; text-decoration: none; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
@@ -391,10 +397,11 @@ function htmlHead(title) {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 2rem 1.75rem;
+    padding: 2.25rem 2.25rem;
   }
-  h1 { font-size: 1.55rem; letter-spacing: -.03em; line-height: 1.25; margin-bottom: .4rem; }
-  .subtitle { color: var(--text-dim); font-size: .92rem; margin-bottom: 1.75rem; }
+  h1 { font-size: clamp(1.4rem, 4vw, 1.7rem); letter-spacing: -.03em; line-height: 1.25; margin-bottom: .4rem; }
+  .subtitle { color: var(--text-dim); font-size: 1rem; margin-bottom: .4rem; }
+  .source-hint { font-size: .75rem; color: var(--text-dim); opacity: .55; margin-bottom: 2rem; }
 
   /* ── Form ── */
   .field { display: flex; gap: .6rem; margin-bottom: .6rem; }
@@ -408,27 +415,32 @@ function htmlHead(title) {
   input::placeholder { color: var(--text-dim); opacity: .55; }
   .btn {
     display: inline-flex; align-items: center; gap: .45rem;
-    font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: .92rem;
+    font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 1rem;
     padding: .7rem 1.35rem; border: none; border-radius: 8px;
     cursor: pointer; transition: background .2s, transform .1s; white-space: nowrap;
   }
   .btn:active { transform: scale(.97); }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-dim); }
-  .hint { font-size: .78rem; color: var(--text-dim); opacity: .7; }
+  .hint { font-size: .88rem; color: var(--text-dim); opacity: .7; }
 
   /* ── Subscribe Page ── */
+  .heading-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap; margin-bottom: .4rem;
+  }
+  .heading-row h1 { margin-bottom: 0; flex: 1; min-width: 0; }
   .team-badge {
     display: inline-flex; align-items: center; gap: .5rem;
     background: var(--accent-glow); border: 1px solid var(--border-accent);
     border-radius: 100px; padding: .35rem .9rem;
-    font-size: .82rem; font-weight: 600; color: var(--accent);
-    margin-bottom: 1.25rem;
+    font-size: .9rem; font-weight: 600; color: var(--accent);
+    white-space: nowrap; flex-shrink: 0;
   }
   .team-badge .dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
 
   .links-heading {
-    font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
+    font-size: .85rem; text-transform: uppercase; letter-spacing: .08em;
     color: var(--text-dim); margin-bottom: .7rem; margin-top: .25rem;
   }
 
@@ -449,17 +461,17 @@ function htmlHead(title) {
   .sub-link .icon.google  { background: var(--icon-google-bg, #e8f0fe); border: 1px solid var(--icon-google-border, #a8c7fa); }
   .sub-link .icon.outlook { background: var(--icon-outlook-bg, #e6f0fa); border: 1px solid var(--icon-outlook-border, #a0c4e8); }
   .sub-link .icon.copy    { background: var(--icon-copy-bg, #fef0f0); border: 1px solid var(--icon-copy-border, #e8c4c4); }
-  .sub-link .label { font-weight: 600; font-size: .92rem; }
-  .sub-link .desc  { font-size: .78rem; color: var(--text-dim); }
+  .sub-link .label { font-weight: 600; font-size: 1rem; }
+  .sub-link .desc  { font-size: .88rem; color: var(--text-dim); }
 
   /* ── Subscribe Dropdown ── */
   .subscribe-toggle {
     display: flex; align-items: center; justify-content: space-between;
-    width: 100%; padding: .8rem 1.1rem;
+    width: 100%; padding: .85rem 1.1rem;
     background: var(--accent); color: #fff;
     border: none; border-radius: 10px;
     font-family: 'DM Sans', system-ui, sans-serif;
-    font-weight: 600; font-size: .95rem;
+    font-weight: 600; font-size: 1rem;
     cursor: pointer; transition: background .2s, transform .1s;
   }
   .subscribe-toggle:hover { background: var(--accent-dim); }
@@ -487,7 +499,7 @@ function htmlHead(title) {
   }
 
   .url-box {
-    font-family: 'DM Mono', monospace; font-size: .78rem;
+    font-family: 'DM Mono', monospace; font-size: .85rem;
     background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
     padding: .65rem .85rem; color: var(--accent); word-break: break-all;
     margin-top: .35rem; margin-bottom: 1.5rem;
@@ -497,30 +509,30 @@ function htmlHead(title) {
 
   /* ── Events Preview ── */
   .events-heading {
-    font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
+    font-size: .85rem; text-transform: uppercase; letter-spacing: .08em;
     color: var(--text-dim); margin-bottom: .7rem;
   }
   .event-row {
-    display: flex; gap: .85rem; padding: .65rem 0;
+    display: flex; gap: .85rem; padding: .75rem 0;
     border-bottom: 1px solid var(--border); align-items: flex-start;
   }
   .event-row:last-child { border-bottom: none; }
-  .event-date { min-width: 42px; text-align: center; flex-shrink: 0; }
+  .event-date { min-width: 44px; text-align: center; flex-shrink: 0; }
   .event-date .month {
-    font-size: .65rem; text-transform: uppercase; letter-spacing: .06em;
+    font-size: .75rem; text-transform: uppercase; letter-spacing: .06em;
     color: var(--accent); font-weight: 700;
   }
-  .event-date .day { font-size: 1.2rem; font-weight: 700; line-height: 1.15; }
+  .event-date .day { font-size: 1.35rem; font-weight: 700; line-height: 1.15; }
   .event-info { min-width: 0; overflow-wrap: break-word; }
-  .event-info .title { font-size: .85rem; font-weight: 600; line-height: 1.3; }
-  .event-info .meta { font-size: .75rem; color: var(--text-dim); margin-top: .15rem; }
+  .event-info .title { font-size: .95rem; font-weight: 600; line-height: 1.3; }
+  .event-info .meta { font-size: .85rem; color: var(--text-dim); margin-top: .15rem; }
 
   /* ── Toast ── */
   .toast {
     position: fixed; bottom: 1.5rem; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: var(--accent); color: #fff;
-    font-weight: 600; font-size: .85rem; padding: .55rem 1.2rem;
+    font-weight: 600; font-size: .95rem; padding: .6rem 1.3rem;
     border-radius: 100px; opacity: 0;
     transition: opacity .25s, transform .25s;
     pointer-events: none; z-index: 999;
@@ -560,7 +572,7 @@ function htmlHead(title) {
 
   .back {
     display: inline-flex; align-items: center; gap: .35rem;
-    font-size: .85rem; color: var(--text-dim); margin-bottom: 1.5rem;
+    font-size: .95rem; color: var(--text-dim); margin-bottom: 1.5rem;
   }
   .back:hover { color: var(--accent); text-decoration: none; }
 
@@ -574,35 +586,41 @@ function htmlHead(title) {
   .navbar { padding-left: max(.75rem, env(safe-area-inset-left)); padding-right: max(.75rem, env(safe-area-inset-right)); padding-top: max(.7rem, env(safe-area-inset-top)); }
   .site-footer { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); padding-left: max(1.25rem, env(safe-area-inset-left)); padding-right: max(1.25rem, env(safe-area-inset-right)); }
 
+  @media (max-width: 720px) {
+    .card { padding: 1.75rem 1.5rem; }
+  }
+
   @media (max-width: 600px) {
-    .page-content { padding: 1.75rem 1rem 2.5rem; }
+    .page-content { padding: 1.5rem 1rem 2.5rem; }
     .card { padding: 1.5rem 1.25rem; }
-    h1 { font-size: 1.35rem; }
-    .subtitle { font-size: .88rem; }
     .field { flex-direction: column; }
     .btn { justify-content: center; width: 100%; }
-    .event-info .title { font-size: .82rem; }
-    .sub-link .desc { font-size: .74rem; }
-    .navbar span { font-size: .85rem; }
   }
 
   @media (max-width: 380px) {
     .page-content { padding: 1.25rem .75rem 2rem; }
     .card { padding: 1.25rem 1rem; }
-    h1 { font-size: 1.2rem; }
-    .navbar span { font-size: .78rem; }
     .sub-link { gap: .6rem; padding: .75rem .85rem; }
-    .sub-link .icon { width: 32px; height: 32px; }
-    .url-box { font-size: .7rem; padding: .55rem .7rem; }
-    .event-date { min-width: 36px; }
-    .event-date .day { font-size: 1.05rem; }
+    .sub-link .icon { width: 34px; height: 34px; }
+    .event-date { min-width: 40px; }
   }
 </style>
 </head>`;
 }
 
 const NAVBAR = `<nav class="navbar"><img src="/heartland-shield.png" alt="Heartland Soccer" /><span>Heartland Soccer Team Calendars</span></nav>`;
-const FOOTER = `<footer class="site-footer">This site is not affiliated with Heartland Soccer Association. For official information, visit <a href="https://www.heartlandsoccer.net" target="_blank">heartlandsoccer.net</a>.</footer>`;
+const FOOTER = `<footer class="site-footer">
+  <p>This site is not affiliated with Heartland Soccer Association. For official information, visit <a href="https://www.heartlandsoccer.net" target="_blank">heartlandsoccer.net</a>.</p>
+  <p style="margin-top:.6rem">
+    <a href="https://github.com/erikankrom" target="_blank" class="footer-credit">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      Made by erikankrom
+    </a>
+  </p>
+  <p style="margin-top:.75rem">
+    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="erikankrom" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"><\/script>
+  </p>
+</footer>`;
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
 
@@ -661,7 +679,6 @@ ${NAVBAR}
   </a>
 
   <div class="card">
-    <div class="team-badge"><span class="dot"></span> Team ${escapeHtml(teamId)}</div>
 
     <!-- Loading state -->
     <div id="loadingState">
@@ -685,8 +702,12 @@ ${NAVBAR}
 
     <!-- Loaded content (hidden until populated) -->
     <div id="loadedContent" style="display:none">
-      <h1 id="teamNameEl"></h1>
+      <div class="heading-row">
+        <h1 id="teamNameEl"></h1>
+        <div class="team-badge"><span class="dot"></span> Team ${escapeHtml(teamId)}</div>
+      </div>
       <p class="subtitle" id="subtitleEl"></p>
+      <p class="source-hint" id="sourceHintEl"></p>
 
       <button class="subscribe-toggle" id="subToggle" aria-expanded="false" aria-controls="subPanel">
         <span>Subscribe to calendar</span>
@@ -793,6 +814,7 @@ ${FOOTER}
     document.title = esc(data.teamName) + ' \\u2013 Heartland Soccer Team Calendars';
     document.getElementById('teamNameEl').textContent = data.teamName;
     document.getElementById('subtitleEl').innerHTML = data.events.length + ' game' + (data.events.length === 1 ? '' : 's') + ' found &middot; auto-updates every hour';
+    document.getElementById('sourceHintEl').innerHTML = 'Source: <a href="https://calendar.heartlandsoccer.net/team/events/' + esc(TEAM_ID) + '" target="_blank">calendar.heartlandsoccer.net</a>';
 
     var googleUrl = 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(WEBCAL);
     var outlookUrl = 'https://outlook.live.com/calendar/0/addfromweb?url=' + encodeURIComponent(HTTPS) + '&name=' + encodeURIComponent(data.teamName + ' - Heartland Soccer');
