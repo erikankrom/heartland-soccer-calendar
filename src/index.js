@@ -924,7 +924,9 @@ ${FOOTER}
       var loc = e.location;
       var locLabel = loc && loc.name ? esc(loc.field + ' \\u2014 ' + loc.name) : (loc && loc.field ? esc(loc.field) : '');
       var mapLink = (loc && loc.mapUrl) ? '<div class="meta"><a href="' + esc(loc.mapUrl) + '" target="_blank" rel="noopener">Field map</a></div>' : '';
-      html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info"><div class="title">' + esc(e.summary) + '</div><div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + mapLink + '</div></div>';
+      var isHome = new RegExp('^\\s*' + TEAM_ID + '\\s*[-\u2013]').test(e.summary || '');
+      var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
+      html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info"><div class="title">' + esc(e.summary) + '</div><div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + mapLink + jerseyHtml + '</div></div>';
     });
     document.getElementById('eventsList').innerHTML = html;
 
