@@ -924,8 +924,15 @@ ${FOOTER}
       var d = parseDT(e.dtstart);
       var t = timeRange(e.dtstart, e.dtend);
       var loc = e.location;
-      var locLabel = loc && loc.name ? esc(loc.field + ' \\u2014 ' + loc.name) : (loc && loc.field ? esc(loc.field) : '');
-      var mapLink = (loc && loc.mapUrl) ? '<div class="meta"><a href="' + esc(loc.mapUrl) + '" target="_blank" rel="noopener">Field map</a></div>' : '';
+      var fieldAnchor = (loc && loc.field)
+        ? (loc.mapUrl
+            ? '<a href="' + esc(loc.mapUrl) + '" target="_blank" rel="noopener">' + esc(loc.field) + '</a>'
+            : esc(loc.field))
+        : '';
+      var locLabel = fieldAnchor
+        ? (loc && loc.name ? fieldAnchor + ' \u2014 ' + esc(loc.name) : fieldAnchor)
+        : '';
+      var mapLink = '';
       var vsIdx = (e.summary || '').search(/\\bvs\\.?\\b/i);
       var beforeVs = vsIdx >= 0 ? (e.summary || '').slice(0, vsIdx) : (e.summary || '');
       var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
