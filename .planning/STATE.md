@@ -3,8 +3,8 @@
 ## Current Position
 
 **Milestone:** v1.0 Launch — COMPLETE (shipped 2026-02-20)
-**Current Phase:** —
-**Current Plan:** —
+**Current Phase:** 03-home-away-jersey-colors — COMPLETE
+**Current Plan:** 03-01 — COMPLETE
 **Next:** Define next milestone — run `/gsd:discuss-milestone` or `/gsd:new-milestone`
 
 See: .planning/PROJECT.md (updated 2026-02-20)
@@ -21,6 +21,9 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 - `esc()` helper used on `loc.mapUrl` in client-side JS to prevent XSS
 - CSS mask trick for checkmark bullets — no per-item SVG, respects accent color in light/dark
 - Removed "auto-updates every hour" copy — refresh is client-controlled, not worker-controlled
+- Home/away detection uses before-vs substring check: find vsIdx via `/\bvs\.?\b/i`, slice summary up to that index, test if teamId appears in slice — more robust than start-of-string regex
+- Jersey color always appended to DESCRIPTION descParts — every game is home or away, no unknown state
+- No new CSS for jersey color — `.meta` class already provides correct dimmed styling
 
 ### Roadmap Evolution
 
@@ -28,7 +31,8 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 ### v1.0 Milestone Progress
 
-| Phase | Plan  | Status   | Key Commits                     |
-|-------|-------|----------|---------------------------------|
-| 1     | 01-01 | complete | `96fc975`, `cc1ce1b`            |
-| 2     | 02-01 | complete | `077d2cf`, `981244a`, `3365c6d` |
+| Phase | Plan  | Status   | Key Commits                               |
+|-------|-------|----------|-------------------------------------------|
+| 1     | 01-01 | complete | `96fc975`, `cc1ce1b`                      |
+| 2     | 02-01 | complete | `077d2cf`, `981244a`, `3365c6d`           |
+| 3     | 03-01 | complete | `d2d5ca0`, `d7c1a6c`, `59e56f9`           |
