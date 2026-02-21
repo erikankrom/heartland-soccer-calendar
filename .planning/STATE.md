@@ -3,14 +3,14 @@
 ## Current Position
 
 **Milestone:** v1.0 Launch — COMPLETE (shipped 2026-02-20)
-**Current Phase:** 04-modify-field-map-link-location — IN PROGRESS
-**Current Plan:** 04-01 — awaiting human-verify checkpoint (Task 2 of 2)
-**Next:** User verify subscribe page at `/subscribe/{teamId}`, then resume 04-01
+**Current Phase:** 04-modify-field-map-link-location — COMPLETE
+**Current Plan:** 04-01 — COMPLETE
+**Next:** Define next milestone — run `/gsd:discuss-milestone` or `/gsd:new-milestone`
 
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** One-click calendar subscription for Heartland Soccer teams
-**Current focus:** Phase 04 — field name as map link in subscribe page
+**Current focus:** Awaiting next milestone definition
 
 ## Accumulated Context
 
@@ -24,6 +24,8 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 - Home/away detection uses before-vs substring check: find vsIdx via `/\bvs\.?\b/i`, slice summary up to that index, test if teamId appears in slice — more robust than start-of-string regex
 - Jersey color always appended to DESCRIPTION descParts — every game is home or away, no unknown state
 - No new CSS for jersey color — `.meta` class already provides correct dimmed styling
+- Field name is the map link in subscribe page event rows — `fieldAnchor` wraps `loc.field` in `<a>` when `mapUrl` exists; `mapLink` retained as `''` to avoid touching `html +=` line; `locLabel` contains raw HTML (safe — all dynamic values escaped via `esc()`)
+- No new CSS for field name link — existing `a { color: var(--accent) }` rule handles it automatically
 
 ### Roadmap Evolution
 
@@ -37,4 +39,4 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 | 1     | 01-01 | complete                 | `96fc975`, `cc1ce1b`             |
 | 2     | 02-01 | complete                 | `077d2cf`, `981244a`, `3365c6d`  |
 | 3     | 03-01 | complete                 | `d2d5ca0`, `d7c1a6c`, `59e56f9`  |
-| 4     | 04-01 | in-progress (checkpoint) | `9355306`                        |
+| 4     | 04-01 | complete                 | `9355306`                        |
