@@ -37,12 +37,12 @@ export default {
     // --- Subscription links page ---
     const subscribeMatch = path.match(/^\/subscribe\/(\d+)\/?$/);
     if (subscribeMatch) {
-      return handleSubscribePage(subscribeMatch[1], url);
+      return handleSubscribePage(subscribeMatch[1], url, env);
     }
 
     // --- Landing page ---
     if (path === '/' || path === '') {
-      return new Response(renderLandingPage(), {
+      return new Response(renderLandingPage(env), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
       });
     }
@@ -111,8 +111,8 @@ async function handleTeamAPI(teamId) {
   }
 }
 
-function handleSubscribePage(teamId, url) {
-  return new Response(renderSubscribePage(teamId, url), {
+function handleSubscribePage(teamId, url, env) {
+  return new Response(renderSubscribePage(teamId, url, env), {
     headers: { 'Content-Type': 'text/html; charset=utf-8' },
   });
 }
@@ -285,7 +285,7 @@ function generateUID(summary, dateStr) {
 
 // ─── Shared HTML Helpers ────────────────────────────────────────────────────
 
-function htmlHead(title) {
+function htmlHead(title, analyticsToken = null) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -683,7 +683,9 @@ function htmlHead(title) {
     border: 1.5px solid var(--border);
     border-radius: 50%;
   }
-</style>
+</style>${analyticsToken
+    ? `\n<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "${analyticsToken}"}'></script>`
+    : ''}
 </head>`;
 }
 
@@ -703,8 +705,8 @@ const FOOTER = `<footer class="site-footer">
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
 
-function renderLandingPage() {
-  return `${htmlHead('Heartland Soccer Team Calendars')}
+function renderLandingPage(env) {
+  return `${htmlHead('Heartland Soccer Team Calendars', env?.CF_ANALYTICS_TOKEN ?? null)}
 <body>
 ${NAVBAR}
 <div class="page-content">
@@ -757,7 +759,7 @@ ${FOOTER}
 
 // ─── Subscribe Page ─────────────────────────────────────────────────────────
 
-function renderSubscribePage(teamId, url) {
+function renderSubscribePage(teamId, url, env) {
   const webcalUrl = `webcal://${url.host}/calendar/${teamId}`;
   const httpsUrl = `${url.origin}/calendar/${teamId}`;
   const skeletonRows = Array(4).fill(`
@@ -766,7 +768,7 @@ function renderSubscribePage(teamId, url) {
       <div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div>
     </div>`).join('');
 
-  return `${htmlHead('Loading… – Heartland Soccer Team Calendars')}
+  return `${htmlHead('Loading… – Heartland Soccer Team Calendars', env?.CF_ANALYTICS_TOKEN ?? null)}
 <body>
 ${NAVBAR}
 <div class="page-content">
