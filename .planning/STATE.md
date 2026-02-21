@@ -22,6 +22,10 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 - CSS mask trick for checkmark bullets — no per-item SVG, respects accent color in light/dark
 - Removed "auto-updates every hour" copy — refresh is client-controlled, not worker-controlled
 
+### Roadmap Evolution
+
+- Phase 3 added: Home/Away Jersey Color Assignment (show jersey colors in calendar events and subscribe page)
+
 ### v1.0 Milestone Progress
 
 | Phase | Plan  | Status   | Key Commits                     |
