@@ -242,6 +242,9 @@ function generateICal(events, teamId, teamName, sourceUrl) {
     } else if (e.description) {
       descParts.push(e.description);
     }
+    const isHome = new RegExp('^\\s*' + teamId + '\\s*[-\u2013]').test(e.summary || '');
+    const jerseyColor = isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys';
+    descParts.push(jerseyColor);
     if (descParts.length > 0) {
       lines.push(`DESCRIPTION:${descParts.join('\\n')}`);
     }
