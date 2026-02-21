@@ -3,8 +3,8 @@
 ## Current Position
 
 **Milestone:** v1.0 Launch — COMPLETE (shipped 2026-02-20)
-**Current Phase:** 04-modify-field-map-link-location — COMPLETE
-**Current Plan:** 04-01 — COMPLETE
+**Current Phase:** 05-add-cloudflare-website-analytics-tracking-script-to-website — COMPLETE
+**Current Plan:** 05-01 — COMPLETE
 **Next:** Define next milestone — run `/gsd:discuss-milestone` or `/gsd:new-milestone`
 
 See: .planning/PROJECT.md (updated 2026-02-20)
@@ -31,6 +31,8 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 - Phase 3 added: Home/Away Jersey Color Assignment (show jersey colors in calendar events and subscribe page)
 - Phase 4 added: Modify Field Map Link Location (link field name text instead of separate "Map" link; park location stays unlinked)
+- Phase 5 added: Add CloudFlare Website Analytics tracking script to website
+- Cloudflare Web Analytics beacon injected via env-conditional pattern (env?.CF_ANALYTICS_TOKEN ?? null); token never hardcoded; pages render identically when token absent
 
 ### v1.0 Milestone Progress
 
@@ -40,3 +42,4 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 | 2     | 02-01 | complete                 | `077d2cf`, `981244a`, `3365c6d`  |
 | 3     | 03-01 | complete                 | `d2d5ca0`, `d7c1a6c`, `59e56f9`  |
 | 4     | 04-01 | complete                 | `9355306`                        |
+| 5     | 05-01 | complete                 | `afbcd43`                        |
