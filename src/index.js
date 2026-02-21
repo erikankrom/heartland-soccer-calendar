@@ -242,7 +242,9 @@ function generateICal(events, teamId, teamName, sourceUrl) {
     } else if (e.description) {
       descParts.push(e.description);
     }
-    const isHome = new RegExp('^\\s*' + teamId + '\\s*[-\u2013]').test(e.summary || '');
+    const vsIdx = (e.summary || '').search(/\bvs\.?\b/i);
+    const beforeVs = vsIdx >= 0 ? (e.summary || '').slice(0, vsIdx) : (e.summary || '');
+    const isHome = beforeVs.includes(teamId);
     const jerseyColor = isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys';
     descParts.push(jerseyColor);
     if (descParts.length > 0) {
@@ -924,7 +926,9 @@ ${FOOTER}
       var loc = e.location;
       var locLabel = loc && loc.name ? esc(loc.field + ' \\u2014 ' + loc.name) : (loc && loc.field ? esc(loc.field) : '');
       var mapLink = (loc && loc.mapUrl) ? '<div class="meta"><a href="' + esc(loc.mapUrl) + '" target="_blank" rel="noopener">Field map</a></div>' : '';
-      var isHome = new RegExp('^\\s*' + TEAM_ID + '\\s*[-\u2013]').test(e.summary || '');
+      var vsIdx = (e.summary || '').search(/\\bvs\\.?\\b/i);
+      var beforeVs = vsIdx >= 0 ? (e.summary || '').slice(0, vsIdx) : (e.summary || '');
+      var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
       var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
       html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info"><div class="title">' + esc(e.summary) + '</div><div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + mapLink + jerseyHtml + '</div></div>';
     });
