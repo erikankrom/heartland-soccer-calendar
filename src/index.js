@@ -893,28 +893,48 @@ ${FOOTER}
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-  function rawDT(val) {
-    // Strip "TZID=America/Chicago:" style prefix to get the bare datetime string
+  // Convert an iCal DTSTART/DTEND value to a JS Date in the user's local timezone.
+  // Handles: "TZID=America/Chicago:20260301T090000", "20260301T150000Z", "20260301T090000"
+  function dtToDate(val) {
+    if (!val) return null;
+    var raw = val, tzid = null;
+    // Extract TZID parameter if present: "TZID=America/Chicago:20260301T090000"
     var ci = val.indexOf(':'), ei = val.indexOf('=');
-    return (ci > 0 && ei !== -1 && ei < ci) ? val.slice(ci + 1) : val;
+    if (ci > 0 && ei !== -1 && ei < ci) {
+      var tm = val.match(/TZID=([^;:]+)/);
+      tzid = tm ? tm[1] : null;
+      raw = val.slice(ci + 1);
+    }
+    var yr = +raw.slice(0,4), mo = +raw.slice(4,6)-1, dy = +raw.slice(6,8);
+    var hr = +raw.slice(9,11)||0, mn = +raw.slice(11,13)||0;
+    // UTC datetime — Date.UTC gives the correct instant
+    if (raw.endsWith('Z')) return new Date(Date.UTC(yr, mo, dy, hr, mn));
+    // TZID-qualified local time — use Intl offset trick to get the correct UTC instant
+    if (tzid) {
+      try {
+        var fakeUTC = new Date(Date.UTC(yr, mo, dy, hr, mn));
+        var parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: tzid, hour: '2-digit', minute: '2-digit', hour12: false
+        }).formatToParts(fakeUTC);
+        var lh = +parts.find(function(p){return p.type==='hour';}).value;
+        var lm = +parts.find(function(p){return p.type==='minute';}).value;
+        var off = (hr - lh) * 60 + (mn - lm);
+        if (off > 720) off -= 1440;
+        if (off < -720) off += 1440;
+        return new Date(fakeUTC.getTime() + off * 60000);
+      } catch(e) {}
+    }
+    // Floating time — interpret as-is in the user's local timezone
+    return new Date(yr, mo, dy, hr, mn);
   }
 
   function fmtTime(val) {
     if (!val) return '';
-    var raw = rawDT(val);
-    // UTC time: convert to Central using Intl API
-    if (raw.endsWith('Z')) {
-      try {
-        var d = new Date(Date.UTC(+raw.slice(0,4), +raw.slice(4,6)-1, +raw.slice(6,8), +raw.slice(9,11), +raw.slice(11,13)));
-        return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true, timeZone:'America/Chicago'});
-      } catch(e) {}
-    }
-    var m = raw.match(/T(\\d{2})(\\d{2})/);
-    if (!m) return '';
-    var h = parseInt(m[1],10), min = m[2], ampm = h >= 12 ? 'PM' : 'AM';
-    if (h > 12) h -= 12;
-    if (h === 0) h = 12;
-    return min === '00' ? h + ' ' + ampm : h + ':' + min + ' ' + ampm;
+    try {
+      var d = dtToDate(val);
+      if (!d || isNaN(d)) return '';
+      return d.toLocaleTimeString(navigator.language || 'en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
+    } catch(e) { return ''; }
   }
 
   function timeRange(s, e) {
