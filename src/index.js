@@ -214,6 +214,14 @@ function resolveLocation(fieldStr) {
   return { field: raw, name: null, address: null, mapUrl: null };
 }
 
+// RFC 5545 §3.3.5: use ; before parameters (TZID=...), : before bare datetime values.
+function dtProp(name, val) {
+  const eq = val.indexOf('=');
+  const colon = val.indexOf(':');
+  const hasParam = eq !== -1 && (colon === -1 || eq < colon);
+  return `${name}${hasParam ? ';' : ':'}${val}`;
+}
+
 function generateICal(events, teamId, teamName, sourceUrl) {
   const now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const lines = [
@@ -230,8 +238,8 @@ function generateICal(events, teamId, teamName, sourceUrl) {
   ];
   for (const e of events) {
     lines.push('BEGIN:VEVENT', `UID:${e.uid}`, `DTSTAMP:${now}`, `SUMMARY:${e.summary}`);
-    if (e.dtstart) lines.push(`DTSTART;${e.dtstart}`);
-    if (e.dtend) lines.push(`DTEND;${e.dtend}`);
+    if (e.dtstart) lines.push(dtProp('DTSTART', e.dtstart));
+    if (e.dtend) lines.push(dtProp('DTEND', e.dtend));
     const loc = resolveLocation(e.description);
     // Build DESCRIPTION with field details
     const descParts = [];
@@ -885,9 +893,23 @@ ${FOOTER}
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+  function rawDT(val) {
+    // Strip "TZID=America/Chicago:" style prefix to get the bare datetime string
+    var ci = val.indexOf(':'), ei = val.indexOf('=');
+    return (ci > 0 && ei !== -1 && ei < ci) ? val.slice(ci + 1) : val;
+  }
+
   function fmtTime(val) {
     if (!val) return '';
-    var m = val.match(/T(\\d{2})(\\d{2})/);
+    var raw = rawDT(val);
+    // UTC time: convert to Central using Intl API
+    if (raw.endsWith('Z')) {
+      try {
+        var d = new Date(Date.UTC(+raw.slice(0,4), +raw.slice(4,6)-1, +raw.slice(6,8), +raw.slice(9,11), +raw.slice(11,13)));
+        return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true, timeZone:'America/Chicago'});
+      } catch(e) {}
+    }
+    var m = raw.match(/T(\\d{2})(\\d{2})/);
     if (!m) return '';
     var h = parseInt(m[1],10), min = m[2], ampm = h >= 12 ? 'PM' : 'AM';
     if (h > 12) h -= 12;
