@@ -1063,7 +1063,7 @@ ${NAVBAR}
 
       <div id="results-section"></div>
 
-      <p class="events-heading">All games</p>
+      <p class="events-heading">Upcoming games</p>
       <div id="eventsList"></div>
     </div>
   </div>
@@ -1224,6 +1224,13 @@ ${FOOTER}
 
     var html = '';
     data.events.forEach(function(e) {
+      var gameDate = dtToISO(e.dtstart);
+      var gameDateObj = gameDate ? new Date(gameDate + 'T00:00:00') : null;
+      var isPast = gameDateObj && gameDateObj < today;
+
+      // Only render upcoming games in this list; past games appear in the results section
+      if (isPast) return;
+
       var d = parseDT(e.dtstart);
       var t = timeRange(e.dtstart, e.dtend);
       var loc = e.location;
@@ -1240,22 +1247,12 @@ ${FOOTER}
       var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
       var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
 
-      // Game intelligence annotations
+      // Opponent record annotation for upcoming games
       var annotationHtml = '';
-      var gameDate = dtToISO(e.dtstart);
-      var gameDateObj = gameDate ? new Date(gameDate + 'T00:00:00') : null;
-      var isPast = gameDateObj && gameDateObj < today;
-      if (isPast && resultsByDate[gameDate]) {
-        var gr = resultsByDate[gameDate];
-        var rl = gr.teamScore > gr.oppScore ? 'W' : (gr.teamScore < gr.oppScore ? 'L' : 'T');
-        var rs = rl + ' ' + gr.teamScore + '\\u2013' + gr.oppScore;
-        annotationHtml = '<span class="score-badge result-' + rl + '">' + rs + '</span>';
-      } else if (!isPast) {
-        var oppId = opponentIdFromSummary(e.summary, TEAM_ID);
-        if (oppId && opponentRecords[oppId]) {
-          var or = opponentRecords[oppId];
-          annotationHtml = '<span class="opp-record">Opp: ' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
-        }
+      var oppId = opponentIdFromSummary(e.summary, TEAM_ID);
+      if (oppId && opponentRecords[oppId]) {
+        var or = opponentRecords[oppId];
+        annotationHtml = '<span class="opp-record">Opp: ' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
       }
 
       var titleHtml = '<div class="title">' + esc(e.summary) + annotationHtml + '</div>';
