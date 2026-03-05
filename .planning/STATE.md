@@ -3,13 +3,13 @@
 ## Current Position
 
 **Milestone:** v1.2 Game Intelligence — IN PROGRESS
-**Current Phase:** 06-results-scraping-and-subscribe-page-enrichment — Not started
-**Current Plan:** Not started
-**Status:** Ready to plan
+**Current Phase:** 06-results-scraping-and-subscribe-page-enrichment — In progress
+**Current Plan:** 06-02 (06-01 complete)
+**Status:** 06-01 complete, ready for 06-02
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ░░░░░████░ 50%
 
-Last activity: 2026-03-04 — Milestone v1.2 created
+Last activity: 2026-03-04 — 06-01 Results Backend complete
 
 See: .planning/PROJECT.md (updated 2026-02-20 after v1.1 milestone)
 
@@ -47,3 +47,10 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 - Opponent team number is embedded in the team name column (e.g. "8175 PSC 15/16G Purple") — parse leading number for opponent lookup
 - League standings page exists but has no team-ID-based URL — deferred to a future phase
 - Cache results at edge (existing Cache API pattern, 1-hour TTL)
+
+### 06-01 Decisions
+
+- Results cache key: `{origin}/api/results/{teamId}` — namespace only, not a real route
+- `handleTeamAPI` now accepts `(teamId, origin, ctx)` — router passes `url.origin` and `ctx`
+- Opponent records fetched in parallel via `Promise.all` after extracting unique opponent IDs; failures return null and are omitted from `opponentRecords` map
+- `/api/team/{teamId}` response now includes `results: { record, games }` and `opponentRecords: { [id]: record }`
