@@ -999,8 +999,8 @@ ${NAVBAR}
         <h1 id="teamNameEl"></h1>
         <div class="team-badge"><span class="dot"></span> Team ${escapeHtml(teamId)}</div>
       </div>
-      <p class="subtitle" id="subtitleEl"></p>
       <div id="record-badge-area"></div>
+      <p class="subtitle" id="subtitleEl"></p>
       <p class="source-hint" id="sourceHintEl"></p>
 
       <button class="subscribe-toggle" id="subToggle" aria-expanded="false" aria-controls="subPanel">
