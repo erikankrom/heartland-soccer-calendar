@@ -731,24 +731,7 @@ function htmlHead(title, analyticsToken = null) {
     padding: .15rem .55rem;
     font-size: .9rem; font-weight: 600; color: var(--text);
   }
-  .results-toggle {
-    display: inline-flex; align-items: center; gap: .3rem;
-    background: none; border: 1px solid var(--border); border-radius: 100px;
-    padding: .3rem .75rem;
-    font-family: 'DM Sans', system-ui, sans-serif;
-    font-size: .88rem; color: var(--text-dim); cursor: pointer;
-    text-decoration: none;
-  }
-  .results-toggle:hover { border-color: var(--accent); color: var(--accent); }
-  .results-toggle .chevron { transition: transform .25s ease; }
-  .results-table-wrap {
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows .3s ease;
-  }
-  .results-table-wrap[data-open="true"] { grid-template-rows: 1fr; }
-  .results-table-inner { overflow: hidden; }
+  .results-table-wrap { margin-top: .5rem; }
   .results-table {
     width: 100%; border-collapse: collapse;
     font-size: .88rem; margin-top: .6rem; margin-bottom: .75rem;
@@ -1186,24 +1169,18 @@ ${FOOTER}
       resultsByDate[scoredGames[gi].date] = scoredGames[gi];
     }
 
-    // Record badge + "Show results" toggle — inline row below team name
+    // Record row — plain label + grey value chip
     if (totalPlayed > 0 || scoredGames.length > 0) {
       var recordText = totalPlayed > 0
         ? rec.wins + 'W \\u2013 ' + rec.losses + 'L \\u2013 ' + rec.ties + 'T'
         : 'No results yet';
-      var badgeRow = '<div class="record-row">';
-      badgeRow += '<span class="record-label">Record</span><span class="record-value">' + recordText + '</span>';
-      if (scoredGames.length > 0) {
-        badgeRow += '<button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap"><span class="toggle-label">Show results</span><svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
-      }
-      badgeRow += '</div>';
-      document.getElementById('record-badge-area').innerHTML = badgeRow;
+      document.getElementById('record-badge-area').innerHTML =
+        '<div class="record-row"><span class="record-label">Record</span><span class="record-value">' + recordText + '</span></div>';
     }
 
-    // Results table — expands in results-section below the badge row
+    // Results table — always visible when there are scored games
     if (scoredGames.length > 0) {
-      var resultsHtml = '<div class="results-table-wrap" id="resultsTableWrap" data-open="false"><div class="results-table-inner">';
-      resultsHtml += '<table class="results-table"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Result</th></tr></thead><tbody>';
+      var resultsHtml = '<div class="results-table-wrap"><table class="results-table"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Result</th></tr></thead><tbody>';
       for (var ri = 0; ri < scoredGames.length; ri++) {
         var g = scoredGames[ri];
         var dateParts = g.date ? g.date.split('-') : [];
@@ -1213,22 +1190,8 @@ ${FOOTER}
         var oppCell = g.opponentId ? esc(g.opponentName || '') + ' <span style="color:var(--text-dim);font-size:.8em">#' + esc(g.opponentId) + '</span>' : esc(g.opponentName || '');
         resultsHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + oppCell + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
       }
-      resultsHtml += '</tbody></table></div></div>';
+      resultsHtml += '</tbody></table></div>';
       document.getElementById('results-section').innerHTML = resultsHtml;
-
-      var resultsToggleBtn = document.getElementById('resultsToggle');
-      if (resultsToggleBtn) {
-        resultsToggleBtn.addEventListener('click', function() {
-          var wrap = document.getElementById('resultsTableWrap');
-          var open = wrap.getAttribute('data-open') === 'true';
-          wrap.setAttribute('data-open', open ? 'false' : 'true');
-          this.setAttribute('aria-expanded', open ? 'false' : 'true');
-          var chevron = this.querySelector('.chevron');
-          if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
-          var lbl = this.querySelector('.toggle-label');
-          if (lbl) lbl.textContent = open ? 'Show results' : 'Hide results';
-        });
-      }
     }
 
     var today = new Date(); today.setHours(0,0,0,0);
