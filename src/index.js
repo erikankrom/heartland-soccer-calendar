@@ -708,26 +708,39 @@ function htmlHead(title, analyticsToken = null) {
   }
   .back:hover { color: var(--accent); text-decoration: none; }
 
+  /* ── Section Heading ── */
+  .section-heading {
+    font-size: .85rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--text-dim); margin-bottom: .35rem; font-weight: 600;
+  }
+
+  /* ── Record Row (badge + toggle inline) ── */
+  .record-row {
+    display: flex; align-items: center; gap: .75rem;
+    flex-wrap: wrap; margin-bottom: .5rem;
+  }
+
   /* ── Record Badge & Results Table ── */
   .record-badge {
     display: inline-flex; align-items: center; gap: .45rem;
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 100px; padding: .3rem .85rem;
     font-size: .9rem; font-weight: 600; color: var(--text);
-    margin-bottom: .75rem;
   }
   .record-badge .record-label {
     font-size: .8rem; font-weight: 400; color: var(--text-dim);
     text-transform: uppercase; letter-spacing: .05em;
   }
   .results-toggle {
-    display: inline-flex; align-items: center; gap: .4rem;
-    background: none; border: none; padding: 0;
+    display: inline-flex; align-items: center; gap: .3rem;
+    background: none; border: 1px solid var(--border); border-radius: 100px;
+    padding: .3rem .75rem;
     font-family: 'DM Sans', system-ui, sans-serif;
-    font-size: .88rem; color: var(--accent); cursor: pointer;
-    text-decoration: underline; margin-bottom: .5rem;
+    font-size: .88rem; color: var(--text-dim); cursor: pointer;
+    text-decoration: none;
   }
-  .results-toggle:hover { color: var(--accent-dim); }
+  .results-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .results-toggle .chevron { transition: transform .25s ease; }
   .results-table-wrap {
     overflow: hidden;
     display: grid;
@@ -738,7 +751,7 @@ function htmlHead(title, analyticsToken = null) {
   .results-table-inner { overflow: hidden; }
   .results-table {
     width: 100%; border-collapse: collapse;
-    font-size: .88rem; margin-bottom: .75rem;
+    font-size: .88rem; margin-top: .6rem; margin-bottom: .75rem;
   }
   .results-table th {
     text-align: left; font-size: .78rem; font-weight: 600;
@@ -995,16 +1008,24 @@ ${NAVBAR}
 
     <!-- Loaded content (hidden until populated) -->
     <div id="loadedContent" style="display:none">
+
+      <!-- ── Team identity block ── -->
       <div class="heading-row">
         <h1 id="teamNameEl"></h1>
         <div class="team-badge"><span class="dot"></span> Team ${escapeHtml(teamId)}</div>
       </div>
       <div id="record-badge-area"></div>
-      <p class="subtitle" id="subtitleEl"></p>
+      <div id="results-section"></div>
       <p class="source-hint" id="sourceHintEl"></p>
 
+      <hr class="divider">
+
+      <!-- ── Calendar block ── -->
+      <h2 class="section-heading">Team Calendar</h2>
+      <p class="subtitle" id="subtitleEl"></p>
+
       <button class="subscribe-toggle" id="subToggle" aria-expanded="false" aria-controls="subPanel">
-        <span>Subscribe to calendar</span>
+        <span>Subscribe</span>
         <svg class="chevron" width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
 
@@ -1059,11 +1080,7 @@ ${NAVBAR}
         </div>
       </div>
 
-      <hr class="divider">
-
-      <div id="results-section"></div>
-
-      <p class="events-heading">Upcoming games</p>
+      <p class="events-heading" style="margin-top:1.5rem">Upcoming Games</p>
       <div id="eventsList"></div>
     </div>
   </div>
@@ -1169,20 +1186,23 @@ ${FOOTER}
       resultsByDate[scoredGames[gi].date] = scoredGames[gi];
     }
 
-    // Record badge — placed directly below team name/subtitle
+    // Record badge + "Show results" toggle — inline row below team name
     if (totalPlayed > 0 || scoredGames.length > 0) {
       var recordText = totalPlayed > 0
         ? rec.wins + 'W \\u2013 ' + rec.losses + 'L \\u2013 ' + rec.ties + 'T'
         : 'No results yet';
-      document.getElementById('record-badge-area').innerHTML =
-        '<div class="record-badge"><span class="record-label">Record</span> ' + recordText + '</div>';
+      var badgeRow = '<div class="record-row">';
+      badgeRow += '<div class="record-badge"><span class="record-label">Record</span> ' + recordText + '</div>';
+      if (scoredGames.length > 0) {
+        badgeRow += '<button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap"><span class="toggle-label">Show results</span><svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+      }
+      badgeRow += '</div>';
+      document.getElementById('record-badge-area').innerHTML = badgeRow;
     }
 
-    // Results toggle + table — placed below subscription links, above game list
-    var resultsHtml = '';
+    // Results table — expands in results-section below the badge row
     if (scoredGames.length > 0) {
-      resultsHtml += '<button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap">Show results</button>';
-      resultsHtml += '<div class="results-table-wrap" id="resultsTableWrap" data-open="false"><div class="results-table-inner">';
+      var resultsHtml = '<div class="results-table-wrap" id="resultsTableWrap" data-open="false"><div class="results-table-inner">';
       resultsHtml += '<table class="results-table"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Result</th></tr></thead><tbody>';
       for (var ri = 0; ri < scoredGames.length; ri++) {
         var g = scoredGames[ri];
@@ -1194,10 +1214,8 @@ ${FOOTER}
         resultsHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + oppCell + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
       }
       resultsHtml += '</tbody></table></div></div>';
-    }
-
-    if (resultsHtml) {
       document.getElementById('results-section').innerHTML = resultsHtml;
+
       var resultsToggleBtn = document.getElementById('resultsToggle');
       if (resultsToggleBtn) {
         resultsToggleBtn.addEventListener('click', function() {
@@ -1205,7 +1223,10 @@ ${FOOTER}
           var open = wrap.getAttribute('data-open') === 'true';
           wrap.setAttribute('data-open', open ? 'false' : 'true');
           this.setAttribute('aria-expanded', open ? 'false' : 'true');
-          this.textContent = open ? 'Show results' : 'Hide results';
+          var chevron = this.querySelector('.chevron');
+          if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+          var lbl = this.querySelector('.toggle-label');
+          if (lbl) lbl.textContent = open ? 'Show results' : 'Hide results';
         });
       }
     }
