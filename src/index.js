@@ -720,16 +720,13 @@ function htmlHead(title, analyticsToken = null) {
     flex-wrap: wrap; margin-bottom: .5rem;
   }
 
-  /* ── Record Badge & Results Table ── */
-  .record-badge {
-    display: inline-flex; align-items: center; gap: .45rem;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 100px; padding: .3rem .85rem;
+  /* ── Record Text & Results Table ── */
+  .record-text {
     font-size: .9rem; font-weight: 600; color: var(--text);
   }
-  .record-badge .record-label {
+  .record-text .record-label {
     font-size: .8rem; font-weight: 400; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: .05em;
+    text-transform: uppercase; letter-spacing: .05em; margin-right: .2rem;
   }
   .results-toggle {
     display: inline-flex; align-items: center; gap: .3rem;
@@ -1192,7 +1189,7 @@ ${FOOTER}
         ? rec.wins + 'W \\u2013 ' + rec.losses + 'L \\u2013 ' + rec.ties + 'T'
         : 'No results yet';
       var badgeRow = '<div class="record-row">';
-      badgeRow += '<div class="record-badge"><span class="record-label">Record</span> ' + recordText + '</div>';
+      badgeRow += '<span class="record-text"><span class="record-label">Record</span>' + recordText + '</span>';
       if (scoredGames.length > 0) {
         badgeRow += '<button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap"><span class="toggle-label">Show results</span><svg class="chevron" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
       }
