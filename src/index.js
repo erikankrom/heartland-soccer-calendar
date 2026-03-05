@@ -1165,11 +1165,8 @@ ${FOOTER}
     var totalPlayed = rec.wins + rec.losses + rec.ties;
     var scoredGames = (results.games || []).filter(function(g) { return g.scored; });
     var resultsByDate = {};
-    var opponentIdByDate = {};
-    for (var gi = 0; gi < (results.games || []).length; gi++) {
-      var rg = results.games[gi];
-      if (rg.scored) resultsByDate[rg.date] = rg;
-      if (rg.opponentId) opponentIdByDate[rg.date] = rg.opponentId;
+    for (var gi = 0; gi < scoredGames.length; gi++) {
+      resultsByDate[scoredGames[gi].date] = scoredGames[gi];
     }
 
     // Record badge — placed directly below team name/subtitle
@@ -1240,9 +1237,10 @@ ${FOOTER}
       var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
       var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
 
-      // Opponent record annotation for upcoming games — look up by date from results.games
+      // Opponent record annotation for upcoming games — extract team number after "vs" in SUMMARY
       var annotationHtml = '';
-      var oppId = opponentIdByDate[gameDate];
+      var oppIdMatch = (e.summary || '').match(/vs\s+(\d+)/i);
+      var oppId = oppIdMatch ? oppIdMatch[1] : null;
       if (oppId && opponentRecords[oppId]) {
         var or = opponentRecords[oppId];
         annotationHtml = '<span class="opp-record">Opp: ' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
