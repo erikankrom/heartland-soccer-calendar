@@ -1,6 +1,6 @@
 # TODOs
 
-## TODO: Clickable team number links for scouting
+## ✓ DONE: Clickable team number links for scouting
 
 In the "Show results" table and on upcoming game rows, make the opponent team number a link to `/subscribe/{opponentId}` so users can easily pull up that team's schedule to scout them.
 
