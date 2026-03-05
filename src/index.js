@@ -1219,7 +1219,7 @@ ${FOOTER}
 
     document.title = esc(data.teamName) + ' \\u2013 Heartland Soccer Team Calendars';
     document.getElementById('teamNameEl').textContent = data.teamName;
-    document.getElementById('subtitleEl').innerHTML = data.events.length + ' game' + (data.events.length === 1 ? '' : 's') + ' found &middot; auto-updates every hour';
+    document.getElementById('subtitleEl').innerHTML = data.events.length + ' game' + (data.events.length === 1 ? '' : 's') + ' found &middot; refreshes up to once per hour';
     document.getElementById('sourceHintEl').innerHTML = 'Source: <a href="https://calendar.heartlandsoccer.net/team/events/' + esc(TEAM_ID) + '" target="_blank">calendar.heartlandsoccer.net</a>';
 
     var googleUrl = 'https://calendar.google.com/calendar/r?cid=' + encodeURIComponent(WEBCAL);
