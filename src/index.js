@@ -1221,9 +1221,11 @@ ${FOOTER}
       var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
       var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
 
-      // Opponent record annotation for upcoming games — extract team number after "vs" in SUMMARY
+      // Opponent record annotation — opponent number is after "vs" when home, before "vs" when away
       var annotationHtml = '';
-      var oppIdMatch = (e.summary || '').match(/vs\s+(\d+)/i);
+      var afterVs = vsIdx >= 0 ? (e.summary || '').slice(vsIdx) : '';
+      var oppPart = isHome ? afterVs : beforeVs;
+      var oppIdMatch = oppPart.match(/(\\d+)/);
       var oppId = oppIdMatch ? oppIdMatch[1] : null;
       if (oppId && opponentRecords[oppId]) {
         var or = opponentRecords[oppId];
