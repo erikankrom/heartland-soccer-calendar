@@ -784,8 +784,8 @@ function htmlHead(title, analyticsToken = null) {
   }
   .opp-record {
     display: inline-block; font-size: .78rem; font-weight: 600; color: var(--text-dim);
-    background: var(--bg); border-radius: 6px; padding: .1rem .4rem;
-    margin-left: .45rem; white-space: nowrap;
+    background: var(--bg); border-radius: 4px; padding: .05rem .3rem;
+    margin-left: .35rem; margin-right: .35rem; white-space: nowrap;
   }
   #results-section { margin-bottom: .25rem; }
 
