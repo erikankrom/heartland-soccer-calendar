@@ -1145,17 +1145,6 @@ ${FOOTER}
     return raw.slice(0,4) + '-' + raw.slice(4,6) + '-' + raw.slice(6,8);
   }
 
-  // Extract leading opponent team number from a SUMMARY string
-  function opponentIdFromSummary(summary, myTeamId) {
-    if (!summary) return null;
-    var vsIdx = summary.search(/\\bvs\\.?\\b/i);
-    if (vsIdx < 0) return null;
-    var vsMatch = summary.match(/\\bvs\\.?\\b/i);
-    var afterVs = summary.slice(vsIdx + vsMatch[0].length).trim();
-    var m = afterVs.match(/^(\\d+)/);
-    return m ? m[1] : null;
-  }
-
   fetch('/api/team/' + TEAM_ID).then(function(r) { return r.json(); }).then(function(data) {
     if (data.error) throw new Error(data.error);
 
@@ -1176,8 +1165,11 @@ ${FOOTER}
     var totalPlayed = rec.wins + rec.losses + rec.ties;
     var scoredGames = (results.games || []).filter(function(g) { return g.scored; });
     var resultsByDate = {};
-    for (var gi = 0; gi < scoredGames.length; gi++) {
-      resultsByDate[scoredGames[gi].date] = scoredGames[gi];
+    var opponentIdByDate = {};
+    for (var gi = 0; gi < (results.games || []).length; gi++) {
+      var rg = results.games[gi];
+      if (rg.scored) resultsByDate[rg.date] = rg;
+      if (rg.opponentId) opponentIdByDate[rg.date] = rg.opponentId;
     }
 
     // Record badge — placed directly below team name/subtitle
@@ -1248,9 +1240,9 @@ ${FOOTER}
       var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
       var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
 
-      // Opponent record annotation for upcoming games
+      // Opponent record annotation for upcoming games — look up by date from results.games
       var annotationHtml = '';
-      var oppId = opponentIdFromSummary(e.summary, TEAM_ID);
+      var oppId = opponentIdByDate[gameDate];
       if (oppId && opponentRecords[oppId]) {
         var or = opponentRecords[oppId];
         annotationHtml = '<span class="opp-record">Opp: ' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
