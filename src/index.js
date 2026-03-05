@@ -31,7 +31,7 @@ export default {
     // --- Team info JSON API ---
     const apiMatch = path.match(/^\/api\/team\/(\d+)\/?$/);
     if (apiMatch) {
-      return handleTeamAPI(apiMatch[1]);
+      return handleTeamAPI(apiMatch[1], url.origin, ctx);
     }
 
     // --- Subscription links page ---
@@ -93,14 +93,37 @@ async function handleCalendarFeed(teamId, url, ctx, request, env) {
   }
 }
 
-async function handleTeamAPI(teamId) {
+async function handleTeamAPI(teamId, origin, ctx) {
   try {
-    const { events, teamName } = await fetchTeamInfo(teamId);
+    const [{ events, teamName }, results] = await Promise.all([
+      fetchTeamInfo(teamId),
+      fetchResults(teamId, origin, ctx).catch(() => null),
+    ]);
     const eventsWithLoc = events.map(e => {
       const loc = resolveLocation(e.description);
       return { summary: e.summary, dtstart: e.dtstart, dtend: e.dtend, location: loc };
     });
-    return new Response(JSON.stringify({ teamId, teamName, events: eventsWithLoc }), {
+
+    // Build opponent records map from unique opponent IDs in results
+    let opponentRecords = {};
+    if (results && results.games) {
+      const opponentIds = [...new Set(results.games.map(g => g.opponentId).filter(Boolean))];
+      const opponentEntries = await Promise.all(
+        opponentIds.map(async oppId => {
+          try {
+            const oppResults = await fetchResults(oppId, origin, ctx);
+            return oppResults ? [oppId, oppResults.record] : null;
+          } catch {
+            return null;
+          }
+        })
+      );
+      for (const entry of opponentEntries) {
+        if (entry) opponentRecords[entry[0]] = entry[1];
+      }
+    }
+
+    return new Response(JSON.stringify({ teamId, teamName, events: eventsWithLoc, results, opponentRecords }), {
       headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}` },
     });
   } catch (err) {
@@ -212,6 +235,102 @@ function resolveLocation(fieldStr) {
     return { field: raw, name: complex.name, address: complex.address, mapUrl: complex.mapUrl || null };
   }
   return { field: raw, name: null, address: null, mapUrl: null };
+}
+
+// ─── Results Scraping ────────────────────────────────────────────────────────
+
+const RESULTS_BASE_URL = 'https://heartlandsoccer.net/reports/cgi-jrb/team_results.cgi?team_number=';
+
+function resultsDateToISO(d) {
+  // MM/DD/YY → YYYY-MM-DD
+  const [mm, dd, yy] = d.split('/');
+  return `20${yy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+}
+
+function icalDateToISO(dtstart) {
+  // DTSTART or DTSTART;TZID=...: YYYYMMDD[Thhmmss] → YYYY-MM-DD
+  const raw = dtstart.includes(':') ? dtstart.split(':').pop() : dtstart;
+  return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
+}
+
+function parseResultsHTML(html, teamId) {
+  const teamIdStr = String(teamId);
+  const games = [];
+  const rowPattern = /<tr[^>]*class=text[^>]*>([\s\S]*?)<\/tr>/gi;
+  const cellPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+  const clean = raw => raw.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, '').trim();
+
+  let rowMatch;
+  while ((rowMatch = rowPattern.exec(html)) !== null) {
+    const cells = [];
+    let cellMatch;
+    const cellRe = new RegExp(cellPattern.source, 'gi');
+    while ((cellMatch = cellRe.exec(rowMatch[1])) !== null) {
+      cells.push(clean(cellMatch[1]));
+    }
+    if (cells.length < 8) continue;
+
+    const [, date, field, time, homeTeam, homeScore, visitorTeam, visitorScore] = cells;
+    if (!date || !date.includes('/')) continue;
+
+    const homeNum = (homeTeam.match(/^(\d+)/) || [])[1] || '';
+    const visitorNum = (visitorTeam.match(/^(\d+)/) || [])[1] || '';
+    const isHome = homeNum === teamIdStr;
+    const opponentNum = isHome ? visitorNum : homeNum;
+    const opponentName = isHome ? visitorTeam : homeTeam;
+
+    const scored = homeScore !== '' && visitorScore !== '';
+    const teamScore = isHome ? homeScore : visitorScore;
+    const oppScore = isHome ? visitorScore : homeScore;
+
+    games.push({
+      date: resultsDateToISO(date),
+      field,
+      time,
+      isHome,
+      opponentId: opponentNum,
+      opponentName: opponentName.replace(/^\d+\s*/, '').trim(),
+      scored,
+      teamScore: scored ? Number(teamScore) : null,
+      oppScore: scored ? Number(oppScore) : null,
+    });
+  }
+
+  // Compute W-L-T record from scored games
+  let wins = 0, losses = 0, ties = 0;
+  for (const g of games) {
+    if (!g.scored) continue;
+    if (g.teamScore > g.oppScore) wins++;
+    else if (g.teamScore < g.oppScore) losses++;
+    else ties++;
+  }
+
+  return { record: { wins, losses, ties }, games };
+}
+
+async function fetchResults(teamId, origin, ctx) {
+  const cache = caches.default;
+  const cacheKey = new Request(`${origin}/api/results/${teamId}`, { method: 'GET' });
+
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached.json();
+
+  const resp = await fetch(`${RESULTS_BASE_URL}${teamId}`, {
+    headers: { 'User-Agent': 'heartland-soccer-calendar/1.0' },
+  });
+  if (!resp.ok) return null;
+
+  const html = await resp.text();
+  const data = parseResultsHTML(html, teamId);
+
+  const jsonResp = new Response(JSON.stringify(data), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}`,
+    },
+  });
+  ctx.waitUntil(cache.put(cacheKey, jsonResp.clone()));
+  return data;
 }
 
 // RFC 5545 §3.3.5: use ; before parameters (TZID=...), : before bare datetime values.
