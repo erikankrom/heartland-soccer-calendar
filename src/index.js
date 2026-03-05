@@ -72,7 +72,7 @@ async function handleCalendarFeed(teamId, url, ctx, request, env) {
   if (cached) return cached;
 
   try {
-    const icalContent = await buildCalendar(teamId);
+    const icalContent = await buildCalendar(teamId, url.origin, ctx);
     const response = new Response(icalContent, {
       status: 200,
       headers: {
@@ -171,9 +171,38 @@ async function fetchTeamInfo(teamId) {
   return { events, teamName };
 }
 
-async function buildCalendar(teamId) {
-  const { events, teamName } = await fetchTeamInfo(teamId);
-  return generateICal(events, teamId, teamName, `${SOURCE_BASE_URL}/${teamId}`);
+async function buildCalendar(teamId, origin, ctx) {
+  const [{ events, teamName }, results] = await Promise.all([
+    fetchTeamInfo(teamId),
+    (origin && ctx) ? fetchResults(teamId, origin, ctx).catch(() => null) : Promise.resolve(null),
+  ]);
+
+  // Collect opponent IDs from results + events (same logic as handleTeamAPI)
+  const resultsOppIds = results ? results.games.map(g => g.opponentId).filter(Boolean) : [];
+  const eventOppIds = events.map(e => {
+    const s = e.summary || '';
+    const vsIdx = s.search(/\bvs\.?\b/i);
+    if (vsIdx < 0) return null;
+    const beforeVs = s.slice(0, vsIdx);
+    const isHome = beforeVs.includes(String(teamId));
+    const oppPart = isHome ? s.slice(vsIdx) : beforeVs;
+    const m = oppPart.match(/(\d+)/);
+    return m ? m[1] : null;
+  }).filter(Boolean);
+  const allOppIds = [...new Set([...resultsOppIds, ...eventOppIds])];
+
+  let opponentRecords = {};
+  if (origin && ctx && allOppIds.length > 0) {
+    const entries = await Promise.all(allOppIds.map(async id => {
+      try {
+        const r = await fetchResults(id, origin, ctx);
+        return r ? [id, r.record] : null;
+      } catch { return null; }
+    }));
+    for (const e of entries) { if (e) opponentRecords[e[0]] = e[1]; }
+  }
+
+  return generateICal(events, teamId, teamName, `${SOURCE_BASE_URL}/${teamId}`, results, opponentRecords);
 }
 
 function parseEventsFromHTML(html) {
@@ -357,7 +386,7 @@ function dtProp(name, val) {
   return `${name}${hasParam ? ';' : ':'}${val}`;
 }
 
-function generateICal(events, teamId, teamName, sourceUrl) {
+function generateICal(events, teamId, teamName, sourceUrl, results, opponentRecords) {
   const now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const lines = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//HeartlandSoccerCalendarMerger//EN',
@@ -371,6 +400,14 @@ function generateICal(events, teamId, teamName, sourceUrl) {
     'DTSTART:19701101T020000', 'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU', 'END:STANDARD',
     'END:VTIMEZONE',
   ];
+  // Build date-keyed lookups from results
+  const resultsByDate = {};
+  if (results && results.games) {
+    for (const g of results.games) {
+      if (g.scored) resultsByDate[g.date] = g;
+    }
+  }
+
   for (const e of events) {
     lines.push('BEGIN:VEVENT', `UID:${e.uid}`, `DTSTAMP:${now}`, `SUMMARY:${e.summary}`);
     if (e.dtstart) lines.push(dtProp('DTSTART', e.dtstart));
@@ -390,6 +427,21 @@ function generateICal(events, teamId, teamName, sourceUrl) {
     const isHome = beforeVs.includes(teamId);
     const jerseyColor = isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys';
     descParts.push(jerseyColor);
+
+    // Game intelligence: result for past games, opponent record for upcoming
+    const gameDate = e.dtstart ? icalDateToISO(e.dtstart) : null;
+    const scored = gameDate && resultsByDate[gameDate];
+    if (scored) {
+      const g = resultsByDate[gameDate];
+      const letter = g.teamScore > g.oppScore ? 'W' : g.teamScore < g.oppScore ? 'L' : 'T';
+      descParts.push(`Result: ${letter} ${g.teamScore}\u2013${g.oppScore}`);
+    } else if (opponentRecords) {
+      const oppPart = isHome ? (e.summary || '').slice(vsIdx) : beforeVs;
+      const oppMatch = oppPart.match(/(\d+)/);
+      const oppId = oppMatch ? oppMatch[1] : null;
+      const rec = oppId && opponentRecords[oppId];
+      if (rec) descParts.push(`Opponent record: ${rec.wins}W\u2013${rec.losses}L\u2013${rec.ties}T`);
+    }
     if (descParts.length > 0) {
       lines.push(`DESCRIPTION:${descParts.join('\\n')}`);
     }
