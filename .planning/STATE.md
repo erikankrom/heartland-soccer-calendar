@@ -3,13 +3,13 @@
 ## Current Position
 
 **Milestone:** v1.2 Game Intelligence — IN PROGRESS
-**Current Phase:** 06-results-scraping-and-subscribe-page-enrichment — In progress
-**Current Plan:** 06-02 (06-01 complete)
-**Status:** 06-01 complete, ready for 06-02
+**Current Phase:** 06-results-scraping-and-subscribe-page-enrichment — COMPLETE
+**Current Plan:** 06-02 complete
+**Status:** Phase 6 complete (both plans). Ready for Phase 7.
 
-Progress: ░░░░░████░ 50%
+Progress: ░░░░░█████ 100% of phase 6
 
-Last activity: 2026-03-04 — 06-01 Results Backend complete
+Last activity: 2026-03-05 — 06-02 Subscribe Page Enrichment complete
 
 See: .planning/PROJECT.md (updated 2026-02-20 after v1.1 milestone)
 
@@ -54,3 +54,12 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 - `handleTeamAPI` now accepts `(teamId, origin, ctx)` — router passes `url.origin` and `ctx`
 - Opponent records fetched in parallel via `Promise.all` after extracting unique opponent IDs; failures return null and are omitted from `opponentRecords` map
 - `/api/team/{teamId}` response now includes `results: { record, games }` and `opponentRecords: { [id]: record }`
+
+### 06-02 Decisions
+
+- Opponent ID collection scans both `results.games` AND iCal events server-side — future opponents are only in the calendar until they appear on the results page
+- Home/away opponent extraction from SUMMARY: `beforeVs` has home team number, `afterVs` has away; pick the correct side based on `isHome`
+- Results table always visible (no toggle) — compact enough, simpler UX
+- Subscribe page layout: team identity block (name, record, source) above divider; Team Calendar block (heading, subtitle, subscribe, events) below
+- Grey chip (`var(--bg)`, `border-radius: 6px`) used for record value and opponent record annotation — consistent visual language
+- `.planning/TODOS.md` created; first item: clickable opponent links to `/subscribe/{opponentId}`
