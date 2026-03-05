@@ -1000,6 +1000,7 @@ ${NAVBAR}
         <div class="team-badge"><span class="dot"></span> Team ${escapeHtml(teamId)}</div>
       </div>
       <p class="subtitle" id="subtitleEl"></p>
+      <div id="record-badge-area"></div>
       <p class="source-hint" id="sourceHintEl"></p>
 
       <button class="subscribe-toggle" id="subToggle" aria-expanded="false" aria-controls="subPanel">
@@ -1179,31 +1180,34 @@ ${FOOTER}
       resultsByDate[scoredGames[gi].date] = scoredGames[gi];
     }
 
-    var recordHtml = '';
+    // Record badge — placed directly below team name/subtitle
     if (totalPlayed > 0 || scoredGames.length > 0) {
       var recordText = totalPlayed > 0
         ? rec.wins + 'W \\u2013 ' + rec.losses + 'L \\u2013 ' + rec.ties + 'T'
         : 'No results yet';
-      recordHtml += '<div class="record-badge"><span class="record-label">Record</span> ' + recordText + '</div>';
+      document.getElementById('record-badge-area').innerHTML =
+        '<div class="record-badge"><span class="record-label">Record</span> ' + recordText + '</div>';
     }
 
+    // Results toggle + table — placed below subscription links, above game list
+    var resultsHtml = '';
     if (scoredGames.length > 0) {
-      recordHtml += '<br><button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap">Show results</button>';
-      recordHtml += '<div class="results-table-wrap" id="resultsTableWrap" data-open="false"><div class="results-table-inner">';
-      recordHtml += '<table class="results-table"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Result</th></tr></thead><tbody>';
+      resultsHtml += '<button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap">Show results</button>';
+      resultsHtml += '<div class="results-table-wrap" id="resultsTableWrap" data-open="false"><div class="results-table-inner">';
+      resultsHtml += '<table class="results-table"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Result</th></tr></thead><tbody>';
       for (var ri = 0; ri < scoredGames.length; ri++) {
         var g = scoredGames[ri];
         var dateParts = g.date ? g.date.split('-') : [];
         var dateLabel = dateParts.length === 3 ? (parseInt(dateParts[1],10) + '/' + parseInt(dateParts[2],10)) : g.date;
         var resultLetter = g.teamScore > g.oppScore ? 'W' : (g.teamScore < g.oppScore ? 'L' : 'T');
         var resultStr = resultLetter + ' ' + g.teamScore + '\\u2013' + g.oppScore;
-        recordHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + esc(g.opponentName || '') + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
+        resultsHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + esc(g.opponentName || '') + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
       }
-      recordHtml += '</tbody></table></div></div>';
+      resultsHtml += '</tbody></table></div></div>';
     }
 
-    if (recordHtml) {
-      document.getElementById('results-section').innerHTML = recordHtml;
+    if (resultsHtml) {
+      document.getElementById('results-section').innerHTML = resultsHtml;
       var resultsToggleBtn = document.getElementById('resultsToggle');
       if (resultsToggleBtn) {
         resultsToggleBtn.addEventListener('click', function() {
