@@ -1201,7 +1201,8 @@ ${FOOTER}
         var dateLabel = dateParts.length === 3 ? (parseInt(dateParts[1],10) + '/' + parseInt(dateParts[2],10)) : g.date;
         var resultLetter = g.teamScore > g.oppScore ? 'W' : (g.teamScore < g.oppScore ? 'L' : 'T');
         var resultStr = resultLetter + ' ' + g.teamScore + '\\u2013' + g.oppScore;
-        resultsHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + esc(g.opponentName || '') + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
+        var oppCell = g.opponentId ? esc(g.opponentName || '') + ' <span style="color:var(--text-dim);font-size:.8em">#' + esc(g.opponentId) + '</span>' : esc(g.opponentName || '');
+        resultsHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + oppCell + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
       }
       resultsHtml += '</tbody></table></div></div>';
     }
