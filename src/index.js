@@ -708,6 +708,74 @@ function htmlHead(title, analyticsToken = null) {
   }
   .back:hover { color: var(--accent); text-decoration: none; }
 
+  /* ── Record Badge & Results Table ── */
+  .record-badge {
+    display: inline-flex; align-items: center; gap: .45rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: .3rem .85rem;
+    font-size: .9rem; font-weight: 600; color: var(--text);
+    margin-bottom: .75rem;
+  }
+  .record-badge .record-label {
+    font-size: .8rem; font-weight: 400; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  .results-toggle {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: none; border: none; padding: 0;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: .88rem; color: var(--accent); cursor: pointer;
+    text-decoration: underline; margin-bottom: .5rem;
+  }
+  .results-toggle:hover { color: var(--accent-dim); }
+  .results-table-wrap {
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .3s ease;
+  }
+  .results-table-wrap[data-open="true"] { grid-template-rows: 1fr; }
+  .results-table-inner { overflow: hidden; }
+  .results-table {
+    width: 100%; border-collapse: collapse;
+    font-size: .88rem; margin-bottom: .75rem;
+  }
+  .results-table th {
+    text-align: left; font-size: .78rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-dim); padding: .35rem .5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .results-table td {
+    padding: .45rem .5rem; border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .results-table tr:last-child td { border-bottom: none; }
+  .result-badge {
+    display: inline-block; font-weight: 700; font-size: .82rem;
+    padding: .1rem .4rem; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .result-W { background: #dcfce7; color: #166534; }
+  .result-L { background: #fee2e2; color: #991b1b; }
+  .result-T { background: var(--border); color: var(--text-dim); }
+  @media (prefers-color-scheme: dark) {
+    .result-W { background: #14532d; color: #86efac; }
+    .result-L { background: #7f1d1d; color: #fca5a5; }
+    .result-T { background: #2e2e2e; color: #999; }
+  }
+  .score-badge {
+    display: inline-flex; align-items: center;
+    font-weight: 700; font-size: .82rem;
+    padding: .1rem .45rem; border-radius: 4px;
+    white-space: nowrap; margin-left: .4rem;
+  }
+  .opp-record {
+    display: inline-block; font-size: .8rem; color: var(--text-dim);
+    margin-left: .4rem; white-space: nowrap;
+  }
+  #results-section { margin-bottom: .25rem; }
+
   /* ── Mobile-friendly touch & tap ── */
   @media (pointer: coarse) {
     .sub-link, .subscribe-toggle, .btn, .back { min-height: 44px; }
@@ -866,8 +934,6 @@ ${NAVBAR}
   <div class="planned-section">
     <h2>Planned updates</h2>
     <ul class="planned-list">
-      <li>Standings lookup — see your team's current league record</li>
-      <li>Matchup preview — opponent info for each upcoming game</li>
       <li>Game video feed integration — links to match recordings when available</li>
     </ul>
   </div>
@@ -994,7 +1060,9 @@ ${NAVBAR}
 
       <hr class="divider">
 
-      <p class="events-heading">Upcoming games</p>
+      <div id="results-section"></div>
+
+      <p class="events-heading">All games</p>
       <div id="eventsList"></div>
     </div>
   </div>
@@ -1069,6 +1137,24 @@ ${FOOTER}
     return { month: MONTHS[parseInt(m[2],10) - 1] || '???', day: parseInt(m[3],10) };
   }
 
+  // Convert iCal DTSTART value to YYYY-MM-DD string for date matching
+  function dtToISO(dtstart) {
+    var raw = (dtstart && dtstart.indexOf(':') >= 0) ? dtstart.split(':').pop() : dtstart;
+    if (!raw) return '';
+    return raw.slice(0,4) + '-' + raw.slice(4,6) + '-' + raw.slice(6,8);
+  }
+
+  // Extract leading opponent team number from a SUMMARY string
+  function opponentIdFromSummary(summary, myTeamId) {
+    if (!summary) return null;
+    var vsIdx = summary.search(/\\bvs\\.?\\b/i);
+    if (vsIdx < 0) return null;
+    var vsMatch = summary.match(/\\bvs\\.?\\b/i);
+    var afterVs = summary.slice(vsIdx + vsMatch[0].length).trim();
+    var m = afterVs.match(/^(\\d+)/);
+    return m ? m[1] : null;
+  }
+
   fetch('/api/team/' + TEAM_ID).then(function(r) { return r.json(); }).then(function(data) {
     if (data.error) throw new Error(data.error);
 
@@ -1081,6 +1167,56 @@ ${FOOTER}
     var outlookUrl = 'https://outlook.live.com/calendar/0/addfromweb?url=' + encodeURIComponent(HTTPS) + '&name=' + encodeURIComponent(data.teamName + ' - Heartland Soccer');
     document.getElementById('googleLink').href = googleUrl;
     document.getElementById('outlookLink').href = outlookUrl;
+
+    // ── Record badge + collapsible results table ──
+    var results = data.results || { record: { wins: 0, losses: 0, ties: 0 }, games: [] };
+    var opponentRecords = data.opponentRecords || {};
+    var rec = results.record || { wins: 0, losses: 0, ties: 0 };
+    var totalPlayed = rec.wins + rec.losses + rec.ties;
+    var scoredGames = (results.games || []).filter(function(g) { return g.scored; });
+    var resultsByDate = {};
+    for (var gi = 0; gi < scoredGames.length; gi++) {
+      resultsByDate[scoredGames[gi].date] = scoredGames[gi];
+    }
+
+    var recordHtml = '';
+    if (totalPlayed > 0 || scoredGames.length > 0) {
+      var recordText = totalPlayed > 0
+        ? rec.wins + 'W \\u2013 ' + rec.losses + 'L \\u2013 ' + rec.ties + 'T'
+        : 'No results yet';
+      recordHtml += '<div class="record-badge"><span class="record-label">Record</span> ' + recordText + '</div>';
+    }
+
+    if (scoredGames.length > 0) {
+      recordHtml += '<br><button class="results-toggle" id="resultsToggle" aria-expanded="false" aria-controls="resultsTableWrap">Show results</button>';
+      recordHtml += '<div class="results-table-wrap" id="resultsTableWrap" data-open="false"><div class="results-table-inner">';
+      recordHtml += '<table class="results-table"><thead><tr><th>Date</th><th>Opponent</th><th>H/A</th><th>Result</th></tr></thead><tbody>';
+      for (var ri = 0; ri < scoredGames.length; ri++) {
+        var g = scoredGames[ri];
+        var dateParts = g.date ? g.date.split('-') : [];
+        var dateLabel = dateParts.length === 3 ? (parseInt(dateParts[1],10) + '/' + parseInt(dateParts[2],10)) : g.date;
+        var resultLetter = g.teamScore > g.oppScore ? 'W' : (g.teamScore < g.oppScore ? 'L' : 'T');
+        var resultStr = resultLetter + ' ' + g.teamScore + '\\u2013' + g.oppScore;
+        recordHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + esc(g.opponentName || '') + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
+      }
+      recordHtml += '</tbody></table></div></div>';
+    }
+
+    if (recordHtml) {
+      document.getElementById('results-section').innerHTML = recordHtml;
+      var resultsToggleBtn = document.getElementById('resultsToggle');
+      if (resultsToggleBtn) {
+        resultsToggleBtn.addEventListener('click', function() {
+          var wrap = document.getElementById('resultsTableWrap');
+          var open = wrap.getAttribute('data-open') === 'true';
+          wrap.setAttribute('data-open', open ? 'false' : 'true');
+          this.setAttribute('aria-expanded', open ? 'false' : 'true');
+          this.textContent = open ? 'Show results' : 'Hide results';
+        });
+      }
+    }
+
+    var today = new Date(); today.setHours(0,0,0,0);
 
     var html = '';
     data.events.forEach(function(e) {
@@ -1095,12 +1231,31 @@ ${FOOTER}
       var locLabel = fieldAnchor
         ? (loc && loc.name ? fieldAnchor + ' \u2014 ' + esc(loc.name) : fieldAnchor)
         : '';
-      var mapLink = '';
       var vsIdx = (e.summary || '').search(/\\bvs\\.?\\b/i);
       var beforeVs = vsIdx >= 0 ? (e.summary || '').slice(0, vsIdx) : (e.summary || '');
       var isHome = beforeVs.indexOf(TEAM_ID) >= 0;
       var jerseyHtml = '<div class="meta">' + (isHome ? 'Home \u2014 White/Light jerseys' : 'Away \u2014 Dark jerseys') + '</div>';
-      html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info"><div class="title">' + esc(e.summary) + '</div><div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + mapLink + jerseyHtml + '</div></div>';
+
+      // Game intelligence annotations
+      var annotationHtml = '';
+      var gameDate = dtToISO(e.dtstart);
+      var gameDateObj = gameDate ? new Date(gameDate + 'T00:00:00') : null;
+      var isPast = gameDateObj && gameDateObj < today;
+      if (isPast && resultsByDate[gameDate]) {
+        var gr = resultsByDate[gameDate];
+        var rl = gr.teamScore > gr.oppScore ? 'W' : (gr.teamScore < gr.oppScore ? 'L' : 'T');
+        var rs = rl + ' ' + gr.teamScore + '\\u2013' + gr.oppScore;
+        annotationHtml = '<span class="score-badge result-' + rl + '">' + rs + '</span>';
+      } else if (!isPast) {
+        var oppId = opponentIdFromSummary(e.summary, TEAM_ID);
+        if (oppId && opponentRecords[oppId]) {
+          var or = opponentRecords[oppId];
+          annotationHtml = '<span class="opp-record">Opp: ' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
+        }
+      }
+
+      var titleHtml = '<div class="title">' + esc(e.summary) + annotationHtml + '</div>';
+      html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info">' + titleHtml + '<div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + jerseyHtml + '</div></div>';
     });
     document.getElementById('eventsList').innerHTML = html;
 
