@@ -1016,7 +1016,6 @@ ${NAVBAR}
       </div>
       <div id="record-badge-area"></div>
       <div id="results-section"></div>
-      <p class="source-hint" id="sourceHintEl"></p>
 
       <hr class="divider">
 
@@ -1082,6 +1081,7 @@ ${NAVBAR}
 
       <p class="events-heading" style="margin-top:1.5rem">Upcoming Games</p>
       <div id="eventsList"></div>
+      <p class="source-hint" id="sourceHintEl" style="margin-top:1.5rem;margin-bottom:0"></p>
     </div>
   </div>
 </div>
