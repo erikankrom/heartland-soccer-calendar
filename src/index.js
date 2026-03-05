@@ -1256,7 +1256,7 @@ ${FOOTER}
         var dateLabel = dateParts.length === 3 ? (parseInt(dateParts[1],10) + '/' + parseInt(dateParts[2],10)) : g.date;
         var resultLetter = g.teamScore > g.oppScore ? 'W' : (g.teamScore < g.oppScore ? 'L' : 'T');
         var resultStr = resultLetter + ' ' + g.teamScore + '\\u2013' + g.oppScore;
-        var oppCell = g.opponentId ? esc(g.opponentName || '') + ' <span style="color:var(--text-dim);font-size:.8em">#' + esc(g.opponentId) + '</span>' : esc(g.opponentName || '');
+        var oppCell = g.opponentId ? esc(g.opponentName || '') + ' <a href="/subscribe/' + esc(g.opponentId) + '" style="color:var(--text-dim);font-size:.8em;text-decoration:none">#' + esc(g.opponentId) + '</a>' : esc(g.opponentName || '');
         resultsHtml += '<tr><td>' + esc(dateLabel) + '</td><td>' + oppCell + '</td><td>' + (g.isHome ? 'Home' : 'Away') + '</td><td><span class="result-badge result-' + resultLetter + '">' + resultStr + '</span></td></tr>';
       }
       resultsHtml += '</tbody></table></div>';
@@ -1298,7 +1298,7 @@ ${FOOTER}
       var oppId = oppIdMatch ? oppIdMatch[1] : null;
       if (oppId && opponentRecords[oppId]) {
         var or = opponentRecords[oppId];
-        annotationHtml = '<span class="opp-record">' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
+        annotationHtml = '<a href="/subscribe/' + esc(oppId) + '" class="opp-record" style="text-decoration:none">' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</a>';
       }
 
       // Insert chip after opponent name: after full summary for home, after beforeVs for away
