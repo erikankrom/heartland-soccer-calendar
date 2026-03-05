@@ -783,8 +783,9 @@ function htmlHead(title, analyticsToken = null) {
     white-space: nowrap; margin-left: .4rem;
   }
   .opp-record {
-    display: inline-block; font-size: .8rem; color: var(--text-dim);
-    margin-left: .4rem; white-space: nowrap;
+    display: inline-block; font-size: .78rem; font-weight: 600; color: var(--text-dim);
+    background: var(--bg); border-radius: 6px; padding: .1rem .4rem;
+    margin-left: .45rem; white-space: nowrap;
   }
   #results-section { margin-bottom: .25rem; }
 
@@ -1245,7 +1246,7 @@ ${FOOTER}
       var oppId = oppIdMatch ? oppIdMatch[1] : null;
       if (oppId && opponentRecords[oppId]) {
         var or = opponentRecords[oppId];
-        annotationHtml = '<span class="opp-record">Opp: ' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
+        annotationHtml = '<span class="opp-record">' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
       }
 
       var titleHtml = '<div class="title">' + esc(e.summary) + annotationHtml + '</div>';
