@@ -104,12 +104,28 @@ async function handleTeamAPI(teamId, origin, ctx) {
       return { summary: e.summary, dtstart: e.dtstart, dtend: e.dtend, location: loc };
     });
 
-    // Build opponent records map from unique opponent IDs in results
+    // Build opponent records map from all opponent IDs — results.games AND iCal events
+    // (results.games only covers past opponents; events covers upcoming ones too)
+    const resultsOpponentIds = (results && results.games)
+      ? results.games.map(g => g.opponentId).filter(Boolean)
+      : [];
+    const eventOpponentIds = eventsWithLoc.map(e => {
+      const s = e.summary || '';
+      const vsIdx = s.search(/\bvs\.?\b/i);
+      if (vsIdx < 0) return null;
+      const beforeVs = s.slice(0, vsIdx);
+      const afterVs = s.slice(vsIdx);
+      const isHome = beforeVs.includes(String(teamId));
+      const oppPart = isHome ? afterVs : beforeVs;
+      const m = oppPart.match(/(\d+)/);
+      return m ? m[1] : null;
+    }).filter(Boolean);
+    const allOpponentIds = [...new Set([...resultsOpponentIds, ...eventOpponentIds])];
+
     let opponentRecords = {};
-    if (results && results.games) {
-      const opponentIds = [...new Set(results.games.map(g => g.opponentId).filter(Boolean))];
+    if (allOpponentIds.length > 0) {
       const opponentEntries = await Promise.all(
-        opponentIds.map(async oppId => {
+        allOpponentIds.map(async oppId => {
           try {
             const oppResults = await fetchResults(oppId, origin, ctx);
             return oppResults ? [oppId, oppResults.record] : null;
