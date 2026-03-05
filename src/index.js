@@ -1249,7 +1249,13 @@ ${FOOTER}
         annotationHtml = '<span class="opp-record">' + or.wins + 'W\\u2013' + or.losses + 'L\\u2013' + or.ties + 'T</span>';
       }
 
-      var titleHtml = '<div class="title">' + esc(e.summary) + annotationHtml + '</div>';
+      // Insert chip after opponent name: after full summary for home, after beforeVs for away
+      var titleHtml;
+      if (annotationHtml && vsIdx >= 0 && !isHome) {
+        titleHtml = '<div class="title">' + esc(beforeVs) + annotationHtml + esc((e.summary || '').slice(vsIdx)) + '</div>';
+      } else {
+        titleHtml = '<div class="title">' + esc(e.summary) + annotationHtml + '</div>';
+      }
       html += '<div class="event-row"><div class="event-date"><div class="month">' + esc(d.month) + '</div><div class="day">' + d.day + '</div></div><div class="event-info">' + titleHtml + '<div class="meta">' + t + '</div>' + (locLabel ? '<div class="meta">' + locLabel + '</div>' : '') + jerseyHtml + '</div></div>';
     });
     document.getElementById('eventsList').innerHTML = html;
