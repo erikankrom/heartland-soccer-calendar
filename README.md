@@ -1,5 +1,7 @@
 # Heartland Soccer Team Calendars
 
+![Heartland Soccer Team Calendars](https://github.com/erikankrom/heartland-soccer-calendar/blob/main/public/og-image.png?raw=true)
+
 A Cloudflare Worker that scrapes your team's events from [calendar.heartlandsoccer.net](https://calendar.heartlandsoccer.net) and serves them as a single subscribable iCal (.ics) feed. The subscribe page shows team records, standings, and opponent context. Calendar apps auto-refresh to pick up schedule changes.
 
 Live at **[heartland.ankrom.ai](https://heartland.ankrom.ai)**
