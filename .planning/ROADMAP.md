@@ -57,7 +57,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 09-01: Standings table HTML + CSS + client-side rendering
 
 ---
 
@@ -73,4 +73,4 @@ Plans:
 | 6. Results Scraping and Subscribe Page Enrichment | v1.2   | 2/2            | Complete    | 2026-03-05 |
 | 7. iCal Feed Enrichment with Results Data      | v1.2      | 0/0            | Complete    | 2026-03-05 |
 | 8. Standings Scraping                          | v1.3      | 0/1            | Not started | -          |
-| 9. Standings UI                                | v1.3      | 0/?            | Not started | -          |
+| 9. Standings UI                                | v1.3      | 0/1            | Not started | -          |

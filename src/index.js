@@ -1132,12 +1132,14 @@ ${NAVBAR}
   </div>
 
   <div class="value-section">
-    <h2>Why use this?</h2>
+    <h2>What you get</h2>
     <ul class="feature-list">
-      <li>Subscribe to all your team's games at once — no more adding events one by one</li>
-      <li>Enhanced venue names (e.g. "GARMIN Olathe Soccer Complex") instead of raw field codes like "OSC 7A"</li>
-      <li>Field map links included in each event so you can find the exact field</li>
-      <li>Structured location data for native Maps integration on Apple and Google devices</li>
+      <li>Subscribe to all your team's games at once — auto-updates in Apple Calendar, Google Calendar, or Outlook</li>
+      <li>W-L-T record and full results table with scores from every played game</li>
+      <li>Division standings so you can see where your team ranks in the league</li>
+      <li>Opponent records on upcoming games so you know what you're walking into</li>
+      <li>Home/away jersey color reminder in every event (White/Light vs. Dark)</li>
+      <li>Enhanced venue names and field map links so you can find the exact field</li>
     </ul>
   </div>
 
@@ -1177,8 +1179,8 @@ ${NAVBAR}
 <div class="page-content">
 <div class="container">
   <a href="/" class="back">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 4l-4 4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Back
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    Find another team
   </a>
 
   <div class="card">
@@ -1420,7 +1422,8 @@ ${FOOTER}
         var st = standings.teams[si];
         var isSubscribed = String(st.teamId) === String(TEAM_ID);
         var rowClass = isSubscribed ? ' class="standings-highlight"' : '';
-        sHtml += '<tr' + rowClass + '><td>' + esc(st.name) + '</td><td>' + st.w + '</td><td>' + st.l + '</td><td>' + st.t + '</td><td>' + st.pts + '</td></tr>';
+        var teamNumLink = ' <a href="/subscribe/' + esc(st.teamId) + '" style="color:var(--text-dim);font-size:.8em;text-decoration:none">#' + esc(st.teamId) + '</a>';
+        sHtml += '<tr' + rowClass + '><td>' + esc(st.name) + teamNumLink + '</td><td>' + st.w + '</td><td>' + st.l + '</td><td>' + st.t + '</td><td>' + st.pts + '</td></tr>';
       }
       sHtml += '</tbody></table></div>';
       document.getElementById('standings-section').innerHTML = sHtml;
