@@ -2,15 +2,16 @@
 
 ## Current Position
 
-**Milestone:** v1.2 Game Intelligence — ARCHIVED
-**Status:** All milestones complete through v1.2. Ready to plan v1.3.
+**Milestone:** v1.3 Standings
+**Status:** Phase 8 of 9 — Not started
+**Last activity:** 2026-03-05 — Milestone v1.3 created
 
-Last activity: 2026-03-05 — v1.2 milestone archived
+Progress: ░░░░░░░░░░ 0%
 
 See: .planning/PROJECT.md (updated 2026-03-05 after v1.2 milestone)
 
 **Core value:** One-click calendar subscription for Heartland Soccer teams
-**Current focus:** Planning next milestone (v1.3)
+**Current focus:** Phase 8 — Standings Scraping
 
 ## Accumulated Context
 
@@ -25,6 +26,7 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 - Phase 5 added: Add CloudFlare Website Analytics tracking script to website
 - All phases 1–5 complete; v1.0 (phases 1–2) and v1.1 (phases 3–5) archived
 - Milestone v1.2 created: Game Intelligence, 2 phases (Phase 6–7)
+- Milestone v1.3 created: Standings, 2 phases (Phase 8–9)
 
 ### Milestone Progress
 
@@ -32,7 +34,8 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 |-----------|--------|-------------|----------------------------------------|
 | v1.0      | 1–2    | complete    | milestones/v1.0-launch.md              |
 | v1.1      | 3–5    | complete    | milestones/v1.1-enhancements.md        |
-| v1.2      | 6–7    | in progress | —                                      |
+| v1.2      | 6–7    | complete    | milestones/v1.2-game-intelligence.md   |
+| v1.3      | 8–9    | in progress | —                                      |
 
 ### v1.2 Key Context
 

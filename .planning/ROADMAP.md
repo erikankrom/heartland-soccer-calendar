@@ -5,6 +5,7 @@
 - ✅ [v1.0 Launch](milestones/v1.0-launch.md) (Phases 1–2) — SHIPPED 2026-02-20
 - ✅ [v1.1 Enhancements](milestones/v1.1-enhancements.md) (Phases 3–5) — SHIPPED 2026-02-20
 - ✅ [v1.2 Game Intelligence](milestones/v1.2-game-intelligence.md) (Phases 6–7) — SHIPPED 2026-03-05
+- 🚧 v1.3 Standings — Phases 8–9 (in progress)
 
 ## Phases
 
@@ -33,6 +34,31 @@
 
 </details>
 
+### 🚧 v1.3 Standings (In Progress)
+
+**Milestone Goal:** Surface division standings on the subscribe page so users can see where their team ranks.
+
+#### Phase 8: Standings Scraping
+
+**Goal**: Scrape division standings from Heartland Soccer, enrich `/api/team/{teamId}` with standings data
+**Depends on**: Phase 7 (v1.2 complete)
+**Research**: Likely (standings URL follows a different format than results; data shape unknown)
+**Research topics**: Standings page URL structure, HTML format, how to identify the subscribed team's row, relationship between teamId and standings data
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+
+#### Phase 9: Standings UI
+
+**Goal**: Render division standings table on the subscribe page with the subscribed team highlighted
+**Depends on**: Phase 8
+**Research**: Unlikely (internal HTML/CSS patterns established in v1.2)
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01: TBD
+
 ---
 
 ## Progress
@@ -46,3 +72,5 @@
 | 5. Add CloudFlare Website Analytics to website | v1.1      | 1/1            | Complete    | 2026-02-20 |
 | 6. Results Scraping and Subscribe Page Enrichment | v1.2   | 2/2            | Complete    | 2026-03-05 |
 | 7. iCal Feed Enrichment with Results Data      | v1.2      | 0/0            | Complete    | 2026-03-05 |
+| 8. Standings Scraping                          | v1.3      | 0/?            | Not started | -          |
+| 9. Standings UI                                | v1.3      | 0/?            | Not started | -          |
