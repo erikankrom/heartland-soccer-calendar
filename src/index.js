@@ -122,24 +122,40 @@ async function handleTeamAPI(teamId, origin, ctx) {
     }).filter(Boolean);
     const allOpponentIds = [...new Set([...resultsOpponentIds, ...eventOpponentIds])];
 
+    // Collect opponent names for standings inference
+    const opponentNames = eventsWithLoc.map(e => {
+      const s = e.summary || '';
+      const vsIdx = s.search(/\bvs\.?\b/i);
+      if (vsIdx < 0) return null;
+      const beforeVs = s.slice(0, vsIdx);
+      const afterVs = s.slice(vsIdx + s.slice(vsIdx).search(/\S/));
+      const isHome = beforeVs.includes(String(teamId));
+      return isHome ? afterVs.replace(/^vs\.?\s*/i, '').trim() : beforeVs.trim();
+    }).filter(Boolean);
+
+    // Season year from events
+    const dtStartDates = eventsWithLoc.map(e => e.dtstart).filter(Boolean);
+    const seasonYear = dtStartDates.length > 0
+      ? Math.max(...dtStartDates.map(d => parseInt(d.slice(0, 4))))
+      : new Date().getFullYear();
+
     let opponentRecords = {};
-    if (allOpponentIds.length > 0) {
-      const opponentEntries = await Promise.all(
+    const [opponentEntries, standings] = await Promise.all([
+      Promise.all(
         allOpponentIds.map(async oppId => {
           try {
             const oppResults = await fetchResults(oppId, origin, ctx);
             return oppResults ? [oppId, oppResults.record] : null;
-          } catch {
-            return null;
-          }
+          } catch { return null; }
         })
-      );
-      for (const entry of opponentEntries) {
-        if (entry) opponentRecords[entry[0]] = entry[1];
-      }
+      ),
+      fetchStandings(teamId, origin, ctx, opponentNames, seasonYear).catch(() => null),
+    ]);
+    for (const entry of opponentEntries) {
+      if (entry) opponentRecords[entry[0]] = entry[1];
     }
 
-    return new Response(JSON.stringify({ teamId, teamName, events: eventsWithLoc, results, opponentRecords }), {
+    return new Response(JSON.stringify({ teamId, teamName, events: eventsWithLoc, results, opponentRecords, standings }), {
       headers: { 'Content-Type': 'application/json', 'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}` },
     });
   } catch (err) {
