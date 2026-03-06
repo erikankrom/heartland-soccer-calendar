@@ -436,6 +436,51 @@ async function fetchResults(teamId, origin, ctx) {
   return data;
 }
 
+async function fetchStandings(teamId, origin, ctx, opponentNames, seasonYear) {
+  const cache = caches.default;
+  const cacheKey = new Request(`${origin}/api/standings/${teamId}`, { method: 'GET' });
+
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached.json();
+
+  const b_g = inferGender(opponentNames);
+  const age = inferAge(opponentNames, seasonYear);
+  if (!b_g || !age) return null;
+
+  const SCAN_MAX = 15;
+  const results = await Promise.all(
+    Array.from({ length: SCAN_MAX }, (_, i) => i + 1).map(async (n) => {
+      const url = `${STANDINGS_BASE_URL}?level=Premier&b_g=${encodeURIComponent(b_g)}&age=${encodeURIComponent(age)}&subdivision=${n}`;
+      try {
+        const res = await fetch(url, { headers: { 'User-Agent': 'heartland-soccer-calendar/1.0' } });
+        const html = await res.text();
+        if (html.includes('Select Subdivision Error')) return null;
+        if (!html.includes(`>${teamId} `)) return null;
+        return { n, html };
+      } catch { return null; }
+    })
+  );
+
+  const hit = results.find(Boolean);
+  if (!hit) return null;
+
+  const { division, teams } = parseStandings(hit.html);
+  const data = {
+    division,
+    params: { level: 'Premier', b_g, age, subdivision: hit.n },
+    teams,
+  };
+
+  const jsonResp = new Response(JSON.stringify(data), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}`,
+    },
+  });
+  ctx.waitUntil(cache.put(cacheKey, jsonResp.clone()));
+  return data;
+}
+
 // RFC 5545 §3.3.5: use ; before parameters (TZID=...), : before bare datetime values.
 function dtProp(name, val) {
   const eq = val.indexOf('=');
