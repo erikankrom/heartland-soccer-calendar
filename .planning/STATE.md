@@ -3,15 +3,15 @@
 ## Current Position
 
 **Milestone:** v1.3 Standings
-**Status:** Phase 8 of 9 — Plan 08-01 complete
-**Last activity:** 2026-03-05 — Plan 08-01 standings scraping implemented
+**Status:** Phase 9 of 9 — Plan 09-01 complete — milestone complete
+**Last activity:** 2026-03-05 — Plan 09-01 standings UI implemented
 
-Progress: █████░░░░░ 50%
+Progress: ██████████ 100%
 
 See: .planning/PROJECT.md (updated 2026-03-05 after v1.2 milestone)
 
 **Core value:** One-click calendar subscription for Heartland Soccer teams
-**Current focus:** Phase 9 — Standings UI (display standings on subscribe page)
+**Current focus:** v1.3 complete — ready to archive and plan v1.4
 
 ## Accumulated Context
 
@@ -53,6 +53,12 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 - `handleTeamAPI` now accepts `(teamId, origin, ctx)` — router passes `url.origin` and `ctx`
 - Opponent records fetched in parallel via `Promise.all` after extracting unique opponent IDs; failures return null and are omitted from `opponentRecords` map
 - `/api/team/{teamId}` response now includes `results: { record, games }` and `opponentRecords: { [id]: record }`
+
+### 09-01 Decisions
+
+- Standings section silently omitted when `data.standings` is null or teams array is empty — no empty container rendered
+- Columns: Team, W, L, T, Pts only (omit GF/GA/RC — too wide for mobile, unfamiliar to soccer parents)
+- Highlighted row: `var(--bg)` background + `font-weight: 700` on td children — theme-aware, consistent with existing chip pattern
 
 ### 08-01 Decisions
 
