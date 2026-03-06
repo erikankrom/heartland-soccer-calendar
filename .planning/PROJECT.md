@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A Cloudflare Worker that scrapes Heartland Soccer team pages and serves them as subscribable iCal feeds. Users enter their team ID and get subscription links for Apple Calendar, Google Calendar, Outlook, or any webcal-compatible app. Events include enhanced venue names, addresses for native Maps integration, and clickable field map links.
+A Cloudflare Worker that scrapes Heartland Soccer team pages and serves them as subscribable iCal feeds. Users enter their team ID and get subscription links for Apple Calendar, Google Calendar, Outlook, or any webcal-compatible app. The subscribe page shows the team's W-L-T record, full results table, division standings, and opponent records on upcoming games. Events include enhanced venue names, addresses for native Maps integration, field map links, jersey color reminders, and game intelligence (scores for past games, opponent records for future games).
 
 ## Core Value
 
@@ -27,11 +27,14 @@ One-click calendar subscription for Heartland Soccer teams — instead of manual
 - ✓ iCal DESCRIPTION enriched with final score for past games — v1.2
 - ✓ iCal DESCRIPTION enriched with opponent record for future games — v1.2
 - ✓ Opponent team numbers are clickable scouting links to /subscribe/{opponentId} — v1.2
+- ✓ Division standings auto-discovered and displayed on subscribe page — v1.3
+- ✓ Subscribed team's row highlighted in standings table — v1.3
+- ✓ Team numbers in standings table are clickable scouting links — v1.3
 
 ### Active
 
-- [ ] Standings lookup — see team's current league record (standings page has no team-ID-based URL; deferred)
 - [ ] Game video feed integration — links to match recordings when available
+- [ ] Non-Premier league support — only `level=Premier` valid in current season; Classic/Recreation teams get no standings
 
 ### Out of Scope
 
@@ -41,7 +44,7 @@ One-click calendar subscription for Heartland Soccer teams — instead of manual
 
 ## Context
 
-Shipped v1.2 with 1,355 lines JS (single-file Worker, src/index.js) + 7-line CSV locations map (src/locations.csv). Deployed to heartland.ankrom.ai via Cloudflare Workers. No database or KV — iCal data and results data fetched from upstream on demand, edge-cached for 1 hour each. Analytics via Cloudflare Analytics Engine (server-side) and Cloudflare Web Analytics beacon (client-side page views). Results scraped from `team_results.cgi`; opponent records fetched in parallel with per-entry error handling.
+Shipped v1.3 with 1,521 lines JS (single-file Worker, src/index.js) + 7-line CSV locations map (src/locations.csv). Deployed to heartland.ankrom.ai via Cloudflare Workers. No database or KV — all data fetched from upstream on demand, edge-cached for 1 hour each (3 cache namespaces: calendar, results, standings). Standings auto-discovered via parallel subdivision scan (`subdiv_standings.cgi`); gender/age inferred from opponent names. Analytics via Cloudflare Analytics Engine (server-side) and Cloudflare Web Analytics beacon (client-side page views).
 
 ## Key Decisions
 
@@ -62,6 +65,11 @@ Shipped v1.2 with 1,355 lines JS (single-file Worker, src/index.js) + 7-line CSV
 | Opponent ID collection from both results.games AND iCal events | results.games only covers past opponents; future opponents live only in the calendar until they appear on results | ✓ Good |
 | iCal DESCRIPTION enriched in generateICal (not a separate route) | Keeps enrichment co-located with calendar generation; no extra endpoint | ✓ Good |
 | SUMMARY home/away split via vsIdx + beforeVs.includes(teamId) | More robust than position-based approach — team number is reliable in Heartland SUMMARY strings | ✓ Good |
+| Standings auto-discovery: infer b_g/age from opponent names, scan 15 subdivisions in parallel | No direct teamId→standings URL exists anywhere on the site | ✓ Good |
+| Standings cache key `{origin}/api/standings/{teamId}` | Namespace-only pattern (not a real route) — consistent with results cache | ✓ Good |
+| `standings: null` returned gracefully; UI section omitted silently | Non-Premier teams get no standings without errors | ✓ Good |
+| Standings columns: Team/W/L/T/Pts only (omit GF/GA/RC) | Too wide for mobile; GF/GA/RC unfamiliar to soccer parents | ✓ Good |
+| `inferAge` regex: no trailing `\b` on `20\d{2}` pattern | `\b` fails between digits and letters (e.g. `2015G`) — caught during execution, fixed immediately | ✓ Good |
 
 ## Constraints
 
@@ -71,4 +79,4 @@ Shipped v1.2 with 1,355 lines JS (single-file Worker, src/index.js) + 7-line CSV
 - All HTML server-rendered as template literals (no framework, no build step)
 
 ---
-*Last updated: 2026-03-05 after v1.2 milestone*
+*Last updated: 2026-03-05 after v1.3 milestone*

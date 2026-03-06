@@ -1,5 +1,34 @@
 # Project Milestones: Heartland Soccer Team Calendars
 
+## v1.3 Standings (Shipped: 2026-03-05)
+
+**Delivered:** Auto-discovered division standings table on the subscribe page, with the subscribed team's row highlighted; standings scraped from `subdiv_standings.cgi` via parallel subdivision scan with gender/age inference from opponent names.
+
+**Phases completed:** 8–9 (2 plans total)
+
+**Key accomplishments:**
+
+- Auto-discovery algorithm: infer b_g/age from opponent name patterns, scan subdivisions 1–15 in parallel via `Promise.all()`, cache result with 1-hour TTL
+- `fetchStandings` added to `handleTeamAPI`, runs in parallel with opponent records fetch
+- `/api/team/{teamId}` response now includes `standings: { division, params, teams[] }` (or `null` on miss)
+- Subscribe page: "Division Standings" section below results table — Team/W/L/T/Pts columns, subscribed team row highlighted (bold + `var(--bg)`)
+- Team numbers in standings table are clickable `/subscribe/{teamId}` scouting links
+- "Back" nav replaced with "Find another team" + home icon (makes sense when navigating between team pages)
+- Landing page updated to accurately list all features across v1.2 + v1.3
+
+**Stats:**
+
+- 1 file modified (src/index.js)
+- 1,521 lines JS (up from 1,355)
+- 2 phases, 2 plans, ~10 tasks
+- 1 day from start to ship (2026-03-05)
+
+**Git range:** `492c104` → `a177abf`
+
+**What's next:** Game video feed integration, additional league support (non-Premier)
+
+---
+
 ## v1.2 Game Intelligence (Shipped: 2026-03-05)
 
 **Delivered:** W-L-T record, full results table, and opponent context on the subscribe page; iCal events enriched with final scores (past) and opponent records (upcoming); opponent links for scouting.

@@ -8,7 +8,7 @@
 
 Progress: ██████████ 100%
 
-See: .planning/PROJECT.md (updated 2026-03-05 after v1.2 milestone)
+See: .planning/PROJECT.md (updated 2026-03-05 after v1.3 milestone)
 
 **Core value:** One-click calendar subscription for Heartland Soccer teams
 **Current focus:** v1.3 complete — ready to archive and plan v1.4
@@ -35,7 +35,7 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 | v1.0      | 1–2    | complete    | milestones/v1.0-launch.md              |
 | v1.1      | 3–5    | complete    | milestones/v1.1-enhancements.md        |
 | v1.2      | 6–7    | complete    | milestones/v1.2-game-intelligence.md   |
-| v1.3      | 8–9    | in progress | —                                      |
+| v1.3      | 8–9    | complete    | milestones/v1.3-standings.md           |
 
 ### v1.2 Key Context
 
