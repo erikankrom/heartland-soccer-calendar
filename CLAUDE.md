@@ -31,6 +31,15 @@ Single-file Worker ([src/index.js](src/index.js)) with four routes:
 
 **Caching:** Uses Cloudflare Cache API directly (`caches.default`). Only the `/calendar/{teamId}` route is cached (1 hour TTL). The cache key is normalized to `{origin}/calendar/{teamId}`.
 
+## Changelog
+
+**Always update `CHANGELOG.md` when completing a milestone or shipping a new version.**
+
+- Add a new `## [x.y.z] — YYYY-MM-DD` section under `## [Unreleased]`
+- Group entries under `### Added`, `### Changed`, or `### Fixed` as appropriate
+- Update the comparison links at the bottom of the file
+- Commit the changelog update alongside the milestone archive commit
+
 ## Key Constants
 
 - `SOURCE_BASE_URL` — upstream Heartland Soccer calendar URL
