@@ -609,7 +609,7 @@ function generateUID(summary, dateStr) {
 
 // ─── Shared HTML Helpers ────────────────────────────────────────────────────
 
-function htmlHead(title, analyticsToken = null) {
+function htmlHead(title, analyticsToken = null, extraMeta = '') {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1100,7 +1100,7 @@ function htmlHead(title, analyticsToken = null) {
   }
 </style>${analyticsToken
     ? `\n<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "${analyticsToken}"}'></script>`
-    : ''}
+    : ''}${extraMeta ? '\n' + extraMeta : ''}
 </head>`;
 }
 
@@ -1183,7 +1183,12 @@ function renderSubscribePage(teamId, url, env) {
       <div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div>
     </div>`).join('');
 
-  return `${htmlHead('Loading… – Heartland Soccer Team Calendars', env?.CF_ANALYTICS_TOKEN ?? null)}
+  const pageTitle = `Team ${escapeHtml(teamId)} \u2013 Heartland Soccer Team Calendars`;
+  const ogMeta = `<meta property="og:title" content="${pageTitle}">
+<meta property="og:description" content="Subscribe to Heartland Soccer team ${escapeHtml(teamId)}\u2019s schedule. Get Apple Calendar, Google Calendar, or Outlook links.">
+<meta property="og:type" content="website">`;
+
+  return `${htmlHead(pageTitle, env?.CF_ANALYTICS_TOKEN ?? null, ogMeta)}
 <body>
 ${NAVBAR}
 <div class="page-content">
