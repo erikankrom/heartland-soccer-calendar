@@ -47,7 +47,7 @@
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+- [ ] 08-01: Scraping utilities + auto-discovery + API integration
 
 #### Phase 9: Standings UI
 
@@ -72,5 +72,5 @@ Plans:
 | 5. Add CloudFlare Website Analytics to website | v1.1      | 1/1            | Complete    | 2026-02-20 |
 | 6. Results Scraping and Subscribe Page Enrichment | v1.2   | 2/2            | Complete    | 2026-03-05 |
 | 7. iCal Feed Enrichment with Results Data      | v1.2      | 0/0            | Complete    | 2026-03-05 |
-| 8. Standings Scraping                          | v1.3      | 0/?            | Not started | -          |
+| 8. Standings Scraping                          | v1.3      | 0/1            | Not started | -          |
 | 9. Standings UI                                | v1.3      | 0/?            | Not started | -          |

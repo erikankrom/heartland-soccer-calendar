@@ -3,15 +3,15 @@
 ## Current Position
 
 **Milestone:** v1.3 Standings
-**Status:** Phase 8 of 9 — Not started
-**Last activity:** 2026-03-05 — Milestone v1.3 created
+**Status:** Phase 8 of 9 — Plan 08-01 complete
+**Last activity:** 2026-03-05 — Plan 08-01 standings scraping implemented
 
-Progress: ░░░░░░░░░░ 0%
+Progress: █████░░░░░ 50%
 
 See: .planning/PROJECT.md (updated 2026-03-05 after v1.2 milestone)
 
 **Core value:** One-click calendar subscription for Heartland Soccer teams
-**Current focus:** Phase 8 — Standings Scraping
+**Current focus:** Phase 9 — Standings UI (display standings on subscribe page)
 
 ## Accumulated Context
 
@@ -53,6 +53,14 @@ All key decisions from v1.0 and v1.1 are captured in PROJECT.md Key Decisions ta
 - `handleTeamAPI` now accepts `(teamId, origin, ctx)` — router passes `url.origin` and `ctx`
 - Opponent records fetched in parallel via `Promise.all` after extracting unique opponent IDs; failures return null and are omitted from `opponentRecords` map
 - `/api/team/{teamId}` response now includes `results: { record, games }` and `opponentRecords: { [id]: record }`
+
+### 08-01 Decisions
+
+- Standings auto-discovery: infer gender (majority vote on G/B suffix patterns) and age (min birth year from 4-digit or 2-digit range patterns) from opponent names in event summaries, then scan subdivisions 1–15 in parallel
+- Cache key: `{origin}/api/standings/{teamId}` (1-hour TTL, same Cache API pattern)
+- `fetchStandings` runs in parallel with `opponentEntries` Promise.all in `handleTeamAPI`
+- `standings: null` returned gracefully when inference fails (no gender/age match, no subdivision hit, or any error)
+- Regex fix: plan's `inferAge` had word-boundary bugs for patterns like `2015G` and `15/16G`; fixed by removing trailing `\b` and capturing full 2-digit year
 
 ### 06-02 Decisions
 
