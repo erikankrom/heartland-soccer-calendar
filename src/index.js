@@ -960,6 +960,32 @@ function htmlHead(title, analyticsToken = null) {
   }
   #results-section { margin-bottom: .25rem; }
 
+  /* ── Standings Table ── */
+  #standings-section { margin-top: .75rem; }
+  .standings-division {
+    font-size: .78rem; color: var(--text-dim); margin-bottom: .4rem;
+  }
+  .standings-table {
+    width: 100%; border-collapse: collapse;
+    font-size: .88rem; margin-top: .3rem;
+  }
+  .standings-table th {
+    text-align: left; font-size: .78rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text-dim); padding: .35rem .5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .standings-table th:not(:first-child),
+  .standings-table td:not(:first-child) { text-align: center; }
+  .standings-table td {
+    padding: .4rem .5rem; border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .standings-table tr:last-child td { border-bottom: none; }
+  .standings-highlight td {
+    background: var(--bg); font-weight: 700;
+  }
+
   /* ── Mobile-friendly touch & tap ── */
   @media (pointer: coarse) {
     .sub-link, .subscribe-toggle, .btn, .back { min-height: 44px; }
@@ -1187,6 +1213,7 @@ ${NAVBAR}
       </div>
       <div id="record-badge-area"></div>
       <div id="results-section"></div>
+      <div id="standings-section"></div>
 
       <hr class="divider">
 
@@ -1380,6 +1407,23 @@ ${FOOTER}
       }
       resultsHtml += '</tbody></table></div>';
       document.getElementById('results-section').innerHTML = resultsHtml;
+    }
+
+    // ── Standings table ──
+    var standings = data.standings;
+    if (standings && standings.teams && standings.teams.length > 0) {
+      var sHtml = '<p class="section-heading" style="margin-top:.75rem;margin-bottom:.2rem">Division Standings</p>';
+      sHtml += '<p class="standings-division">' + esc(standings.division || '') + '</p>';
+      sHtml += '<div class="results-table-wrap"><table class="standings-table">';
+      sHtml += '<thead><tr><th>Team</th><th>W</th><th>L</th><th>T</th><th>Pts</th></tr></thead><tbody>';
+      for (var si = 0; si < standings.teams.length; si++) {
+        var st = standings.teams[si];
+        var isSubscribed = String(st.teamId) === String(TEAM_ID);
+        var rowClass = isSubscribed ? ' class="standings-highlight"' : '';
+        sHtml += '<tr' + rowClass + '><td>' + esc(st.name) + '</td><td>' + st.w + '</td><td>' + st.l + '</td><td>' + st.t + '</td><td>' + st.pts + '</td></tr>';
+      }
+      sHtml += '</tbody></table></div>';
+      document.getElementById('standings-section').innerHTML = sHtml;
     }
 
     var today = new Date(); today.setHours(0,0,0,0);
