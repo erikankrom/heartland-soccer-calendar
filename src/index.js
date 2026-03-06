@@ -42,7 +42,7 @@ export default {
 
     // --- Landing page ---
     if (path === '/' || path === '') {
-      return new Response(renderLandingPage(env), {
+      return new Response(renderLandingPage(url, env), {
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
       });
     }
@@ -1120,8 +1120,22 @@ const FOOTER = `<footer class="site-footer">
 
 // ─── Landing Page ───────────────────────────────────────────────────────────
 
-function renderLandingPage(env) {
-  return `${htmlHead('Heartland Soccer Team Calendars', env?.CF_ANALYTICS_TOKEN ?? null)}
+function renderLandingPage(url, env) {
+  const siteTitle = 'Heartland Soccer Team Calendars';
+  const siteDesc = 'Subscribe to your Heartland Soccer team schedule. Scores, standings, and game details sync automatically to Apple Calendar, Google Calendar, or Outlook.';
+  const imageUrl = `${url.origin}/heartland-shield.png`;
+  const ogMeta = `<meta property="og:title" content="${siteTitle}">
+<meta property="og:description" content="${siteDesc}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${url.href}">
+<meta property="og:site_name" content="${siteTitle}">
+<meta property="og:image" content="${imageUrl}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${siteTitle}">
+<meta name="twitter:description" content="${siteDesc}">
+<meta name="twitter:image" content="${imageUrl}">`;
+
+  return `${htmlHead(siteTitle, env?.CF_ANALYTICS_TOKEN ?? null, ogMeta)}
 <body>
 ${NAVBAR}
 <div class="page-content">
@@ -1184,9 +1198,18 @@ function renderSubscribePage(teamId, url, env) {
     </div>`).join('');
 
   const pageTitle = `Team ${escapeHtml(teamId)} \u2013 Heartland Soccer Team Calendars`;
+  const pageDesc = `Subscribe to Heartland Soccer team ${escapeHtml(teamId)}\u2019s schedule. Scores, standings, and game details sync automatically to Apple Calendar, Google Calendar, or Outlook.`;
+  const imageUrl = `${url.origin}/heartland-shield.png`;
   const ogMeta = `<meta property="og:title" content="${pageTitle}">
-<meta property="og:description" content="Subscribe to Heartland Soccer team ${escapeHtml(teamId)}\u2019s schedule. Get Apple Calendar, Google Calendar, or Outlook links.">
-<meta property="og:type" content="website">`;
+<meta property="og:description" content="${pageDesc}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${url.href}">
+<meta property="og:site_name" content="Heartland Soccer Team Calendars">
+<meta property="og:image" content="${imageUrl}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${pageTitle}">
+<meta name="twitter:description" content="${pageDesc}">
+<meta name="twitter:image" content="${imageUrl}">`;
 
   return `${htmlHead(pageTitle, env?.CF_ANALYTICS_TOKEN ?? null, ogMeta)}
 <body>
