@@ -285,6 +285,7 @@ function resolveLocation(fieldStr) {
 // ─── Results Scraping ────────────────────────────────────────────────────────
 
 const RESULTS_BASE_URL = 'https://heartlandsoccer.net/reports/cgi-jrb/team_results.cgi?team_number=';
+const STANDINGS_BASE_URL = 'https://heartlandsoccer.net/reports/cgi-jrb/subdiv_standings.cgi';
 
 function resultsDateToISO(d) {
   // MM/DD/YY → YYYY-MM-DD
