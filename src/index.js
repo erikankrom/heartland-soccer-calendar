@@ -1123,7 +1123,7 @@ const FOOTER = `<footer class="site-footer">
 function renderLandingPage(url, env) {
   const siteTitle = 'Heartland Soccer Team Calendars';
   const siteDesc = 'Subscribe to your Heartland Soccer team schedule. Scores, standings, and game details sync automatically to Apple Calendar, Google Calendar, or Outlook.';
-  const imageUrl = `${url.origin}/heartland-shield.png`;
+  const imageUrl = `${url.origin}/og-image.png`;
   const ogMeta = `<meta property="og:title" content="${siteTitle}">
 <meta property="og:description" content="${siteDesc}">
 <meta property="og:type" content="website">
@@ -1199,7 +1199,7 @@ function renderSubscribePage(teamId, url, env) {
 
   const pageTitle = `Team ${escapeHtml(teamId)} \u2013 Heartland Soccer Team Calendars`;
   const pageDesc = `Subscribe to Heartland Soccer team ${escapeHtml(teamId)}\u2019s schedule. Scores, standings, and game details sync automatically to Apple Calendar, Google Calendar, or Outlook.`;
-  const imageUrl = `${url.origin}/heartland-shield.png`;
+  const imageUrl = `${url.origin}/og-image.png`;
   const ogMeta = `<meta property="og:title" content="${pageTitle}">
 <meta property="og:description" content="${pageDesc}">
 <meta property="og:type" content="website">
