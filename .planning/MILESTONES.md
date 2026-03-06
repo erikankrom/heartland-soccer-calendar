@@ -1,5 +1,33 @@
 # Project Milestones: Heartland Soccer Team Calendars
 
+## v1.2 Game Intelligence (Shipped: 2026-03-05)
+
+**Delivered:** W-L-T record, full results table, and opponent context on the subscribe page; iCal events enriched with final scores (past) and opponent records (upcoming); opponent links for scouting.
+
+**Phases completed:** 6–7 (2 plans total; Phase 7 shipped without formal plan)
+
+**Key accomplishments:**
+
+- Results scraping from `team_results.cgi` with W-L-T record computation and 1-hour edge cache
+- `/api/team/{teamId}` enriched with `results` (record + game list) and `opponentRecords` map
+- Subscribe page: team record chip, always-visible results table with scores and opponent IDs, opponent record chips on all upcoming game rows
+- iCal DESCRIPTION enriched: past VEVENTs get `Result: W/L/T X–Y`; future VEVENTs get `Opponent record: XW–YL–ZT`
+- Opponent ID collection from both `results.games` AND iCal event SUMMARYs (future opponents)
+- Opponent team numbers are clickable `/subscribe/{opponentId}` links for scouting
+
+**Stats:**
+
+- 1 file modified (src/index.js)
+- 1,355 lines JS (up from 986)
+- 2 phases, 2 plans, 5 tasks + Phase 7 bonus commit
+- 2 days from start to ship (2026-03-04 → 2026-03-05)
+
+**Git range:** `441b793` → `2d38d37`
+
+**What's next:** Game video feed integration, standings lookup
+
+---
+
 ## v1.1 Enhancements (Shipped: 2026-02-20)
 
 **Delivered:** Home/away jersey colors in iCal events and subscribe page, field name made the clickable map link, and Cloudflare Web Analytics beacon added to both HTML pages.

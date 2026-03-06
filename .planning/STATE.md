@@ -2,19 +2,15 @@
 
 ## Current Position
 
-**Milestone:** v1.2 Game Intelligence — IN PROGRESS
-**Current Phase:** 06-results-scraping-and-subscribe-page-enrichment — COMPLETE
-**Current Plan:** 06-02 complete
-**Status:** Phase 6 complete (both plans). Ready for Phase 7.
+**Milestone:** v1.2 Game Intelligence — ARCHIVED
+**Status:** All milestones complete through v1.2. Ready to plan v1.3.
 
-Progress: ░░░░░█████ 100% of phase 6
+Last activity: 2026-03-05 — v1.2 milestone archived
 
-Last activity: 2026-03-05 — 06-02 Subscribe Page Enrichment complete
-
-See: .planning/PROJECT.md (updated 2026-02-20 after v1.1 milestone)
+See: .planning/PROJECT.md (updated 2026-03-05 after v1.2 milestone)
 
 **Core value:** One-click calendar subscription for Heartland Soccer teams
-**Current focus:** Phase 6 — results scraping and subscribe page enrichment
+**Current focus:** Planning next milestone (v1.3)
 
 ## Accumulated Context
 

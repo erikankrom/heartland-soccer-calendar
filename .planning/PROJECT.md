@@ -21,11 +21,16 @@ One-click calendar subscription for Heartland Soccer teams — instead of manual
 - ✓ Home/away jersey color shown in iCal DESCRIPTION and subscribe page event rows — v1.1
 - ✓ Field name text is the clickable map link in subscribe page event rows — v1.1
 - ✓ Cloudflare Web Analytics beacon injected via CF_ANALYTICS_TOKEN env var (privacy-first, no cookies) — v1.1
+- ✓ W-L-T record displayed on subscribe page — v1.2
+- ✓ Full results table on subscribe page (date, opponent, H/A, score) — v1.2
+- ✓ Opponent W-L-T chip on upcoming game rows in subscribe page — v1.2
+- ✓ iCal DESCRIPTION enriched with final score for past games — v1.2
+- ✓ iCal DESCRIPTION enriched with opponent record for future games — v1.2
+- ✓ Opponent team numbers are clickable scouting links to /subscribe/{opponentId} — v1.2
 
 ### Active
 
-- [ ] Standings lookup — see team's current league record
-- [ ] Matchup preview — opponent info for each upcoming game
+- [ ] Standings lookup — see team's current league record (standings page has no team-ID-based URL; deferred)
 - [ ] Game video feed integration — links to match recordings when available
 
 ### Out of Scope
@@ -36,7 +41,7 @@ One-click calendar subscription for Heartland Soccer teams — instead of manual
 
 ## Context
 
-Shipped v1.1 with 986 lines JS (single-file Worker, src/index.js) + 7-line CSV locations map (src/locations.csv). Deployed to heartland.ankrom.ai via Cloudflare Workers. No database or KV — iCal data fetched from upstream on demand, edge-cached for 1 hour. Analytics via Cloudflare Analytics Engine (server-side) and Cloudflare Web Analytics beacon (client-side page views).
+Shipped v1.2 with 1,355 lines JS (single-file Worker, src/index.js) + 7-line CSV locations map (src/locations.csv). Deployed to heartland.ankrom.ai via Cloudflare Workers. No database or KV — iCal data and results data fetched from upstream on demand, edge-cached for 1 hour each. Analytics via Cloudflare Analytics Engine (server-side) and Cloudflare Web Analytics beacon (client-side page views). Results scraped from `team_results.cgi`; opponent records fetched in parallel with per-entry error handling.
 
 ## Key Decisions
 
@@ -52,6 +57,11 @@ Shipped v1.1 with 986 lines JS (single-file Worker, src/index.js) + 7-line CSV l
 | Field name as map link; `locLabel` contains raw HTML | Minimal diff by retaining `mapLink = ''`; safe because all dynamic values go through `esc()` | ✓ Good |
 | `env` passed as whole object into render functions | Consistent Worker pattern; `env?.CF_ANALYTICS_TOKEN ?? null` handles absent env gracefully | ✓ Good |
 | Analytics beacon uses `defer` attribute | Never blocks page render | ✓ Good |
+| Results cache key `{origin}/api/results/{teamId}` | Namespace only (not a real route) — avoids collision with real routes | ✓ Good |
+| Opponent records fetched in parallel via Promise.all | Per-entry `.catch(() => null)` means one failing opponent doesn't break the response | ✓ Good |
+| Opponent ID collection from both results.games AND iCal events | results.games only covers past opponents; future opponents live only in the calendar until they appear on results | ✓ Good |
+| iCal DESCRIPTION enriched in generateICal (not a separate route) | Keeps enrichment co-located with calendar generation; no extra endpoint | ✓ Good |
+| SUMMARY home/away split via vsIdx + beforeVs.includes(teamId) | More robust than position-based approach — team number is reliable in Heartland SUMMARY strings | ✓ Good |
 
 ## Constraints
 
@@ -61,4 +71,4 @@ Shipped v1.1 with 986 lines JS (single-file Worker, src/index.js) + 7-line CSV l
 - All HTML server-rendered as template literals (no framework, no build step)
 
 ---
-*Last updated: 2026-02-20 after v1.0 milestone*
+*Last updated: 2026-03-05 after v1.2 milestone*
