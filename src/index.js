@@ -377,6 +377,40 @@ function inferAge(names, seasonYear) {
   return `U-${seasonYear - Math.min(...years)}`;
 }
 
+function parseStandings(html) {
+  const headingMatch = html.match(/<h4[^>]*>([^<]+)<\/h4>/i);
+  const division = headingMatch ? headingMatch[1].trim() : null;
+
+  const rows = [];
+  const rowPattern = /<tr[^>]*class=text[^>]*>([\s\S]*?)<\/tr>/gi;
+  let rowMatch;
+  while ((rowMatch = rowPattern.exec(html)) !== null) {
+    const cells = [];
+    const cellPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
+    let cellMatch;
+    while ((cellMatch = cellPattern.exec(rowMatch[1])) !== null) {
+      const text = cellMatch[1].replace(/<[^>]+>/g, '').replace(/&nbsp;?/g, '').trim();
+      cells.push(text);
+    }
+    if (cells.length >= 8) {
+      const spaceIdx = cells[0].indexOf(' ');
+      if (spaceIdx < 0) continue;
+      rows.push({
+        teamId: cells[0].slice(0, spaceIdx),
+        name: cells[0].slice(spaceIdx + 1),
+        w: parseInt(cells[1]) || 0,
+        l: parseInt(cells[2]) || 0,
+        t: parseInt(cells[3]) || 0,
+        gf: parseInt(cells[4]) || 0,
+        ga: parseInt(cells[5]) || 0,
+        rc: parseInt(cells[6]) || 0,
+        pts: parseInt(cells[7]) || 0,
+      });
+    }
+  }
+  return { division, teams: rows };
+}
+
 async function fetchResults(teamId, origin, ctx) {
   const cache = caches.default;
   const cacheKey = new Request(`${origin}/api/results/${teamId}`, { method: 'GET' });
