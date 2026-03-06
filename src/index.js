@@ -354,6 +354,29 @@ function parseResultsHTML(html, teamId) {
   return { record: { wins, losses, ties }, games };
 }
 
+function inferGender(names) {
+  let girls = 0, boys = 0;
+  for (const name of names) {
+    if (/\b(?:G\d{2}|\d{2,4}G)\b/.test(name)) girls++;
+    if (/\b(?:B\d{2}|\d{2,4}B)\b/.test(name)) boys++;
+  }
+  if (girls > boys) return 'Girls';
+  if (boys > girls) return 'Boys';
+  return null;
+}
+
+function inferAge(names, seasonYear) {
+  const years = [];
+  for (const name of names) {
+    const full = name.match(/\b(20\d{2})\b/);
+    if (full) years.push(parseInt(full[1]));
+    const short = name.match(/\b1(\d)\/1\d\b/);
+    if (short) years.push(2000 + parseInt(short[1]));
+  }
+  if (years.length === 0) return null;
+  return `U-${seasonYear - Math.min(...years)}`;
+}
+
 async function fetchResults(teamId, origin, ctx) {
   const cache = caches.default;
   const cacheKey = new Request(`${origin}/api/results/${teamId}`, { method: 'GET' });
