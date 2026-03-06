@@ -310,8 +310,18 @@ function resultsDateToISO(d) {
 }
 
 function icalDateToISO(dtstart) {
-  // DTSTART or DTSTART;TZID=...: YYYYMMDD[Thhmmss] → YYYY-MM-DD
+  // DTSTART or DTSTART;TZID=...: YYYYMMDD[Thhmmss[Z]] → YYYY-MM-DD in America/Chicago local time
   const raw = dtstart.includes(':') ? dtstart.split(':').pop() : dtstart;
+  const yr = +raw.slice(0, 4), mo = +raw.slice(4, 6) - 1, dy = +raw.slice(6, 8);
+  const hr = +raw.slice(9, 11) || 0, mn = +raw.slice(11, 13) || 0;
+  // UTC timestamp — convert to America/Chicago before extracting the date
+  if (raw.endsWith('Z')) {
+    try {
+      const d = new Date(Date.UTC(yr, mo, dy, hr, mn));
+      return new Intl.DateTimeFormat('sv', { timeZone: 'America/Chicago' }).format(d);
+    } catch (e) {}
+  }
+  // TZID-qualified or floating — date part already represents local time
   return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
 }
 
@@ -1350,16 +1360,19 @@ ${FOOTER}
 
   function parseDT(dt) {
     if (!dt) return { month: '???', day: '??' };
-    var m = dt.match(/(\\d{4})(\\d{2})(\\d{2})T/);
-    if (!m) return { month: '???', day: '??' };
-    return { month: MONTHS[parseInt(m[2],10) - 1] || '???', day: parseInt(m[3],10) };
+    var d = dtToDate(dt);
+    if (!d || isNaN(d)) return { month: '???', day: '??' };
+    return { month: MONTHS[d.getMonth()] || '???', day: d.getDate() };
   }
 
-  // Convert iCal DTSTART value to YYYY-MM-DD string for date matching
+  // Convert iCal DTSTART value to YYYY-MM-DD string in local time (for date matching + past/future check)
   function dtToISO(dtstart) {
-    var raw = (dtstart && dtstart.indexOf(':') >= 0) ? dtstart.split(':').pop() : dtstart;
-    if (!raw) return '';
-    return raw.slice(0,4) + '-' + raw.slice(4,6) + '-' + raw.slice(6,8);
+    var d = dtToDate(dtstart);
+    if (!d || isNaN(d)) return '';
+    var yr = d.getFullYear();
+    var mo = ('0' + (d.getMonth() + 1)).slice(-2);
+    var dy = ('0' + d.getDate()).slice(-2);
+    return yr + '-' + mo + '-' + dy;
   }
 
   fetch('/api/team/' + TEAM_ID).then(function(r) { return r.json(); }).then(function(data) {
