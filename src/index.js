@@ -384,9 +384,9 @@ function inferGender(names) {
 function inferAge(names, seasonYear) {
   const years = [];
   for (const name of names) {
-    const full = name.match(/\b(20\d{2})\b/);
+    const full = name.match(/\b(20\d{2})/);
     if (full) years.push(parseInt(full[1]));
-    const short = name.match(/\b1(\d)\/1\d\b/);
+    const short = name.match(/\b(1\d)\/1\d/);
     if (short) years.push(2000 + parseInt(short[1]));
   }
   if (years.length === 0) return null;
