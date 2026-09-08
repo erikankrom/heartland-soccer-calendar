@@ -1460,13 +1460,13 @@ ${FOOTER}
       var sHtml = '<p class="section-heading" style="margin-top:.75rem;margin-bottom:.2rem">Division Standings</p>';
       sHtml += '<p class="standings-division">' + esc(standings.division || '') + '</p>';
       sHtml += '<div class="results-table-wrap"><table class="standings-table">';
-      sHtml += '<thead><tr><th>Team</th><th>W</th><th>L</th><th>T</th><th>Pts</th></tr></thead><tbody>';
+      sHtml += '<thead><tr><th>Team</th><th>W</th><th>L</th><th>T</th><th>GD</th><th>Pts</th></tr></thead><tbody>';
       for (var si = 0; si < standings.teams.length; si++) {
         var st = standings.teams[si];
         var isSubscribed = String(st.teamId) === String(TEAM_ID);
         var rowClass = isSubscribed ? ' class="standings-highlight"' : '';
         var teamNumLink = ' <a href="/subscribe/' + esc(st.teamId) + '" style="color:var(--text-dim);font-size:.8em;text-decoration:none">#' + esc(st.teamId) + '</a>';
-        sHtml += '<tr' + rowClass + '><td>' + esc(st.name) + teamNumLink + '</td><td>' + st.w + '</td><td>' + st.l + '</td><td>' + st.t + '</td><td>' + st.pts + '</td></tr>';
+        sHtml += '<tr' + rowClass + '><td>' + esc(st.name) + teamNumLink + '</td><td>' + st.w + '</td><td>' + st.l + '</td><td>' + st.t + '</td><td>' + (st.gf - st.ga > 0 ? '+' : '') + (st.gf - st.ga) + '</td><td>' + st.pts + '</td></tr>';
       }
       sHtml += '</tbody></table></div>';
       document.getElementById('standings-section').innerHTML = sHtml;
