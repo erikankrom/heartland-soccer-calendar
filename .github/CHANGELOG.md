@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Subscribe page link previews (iMessage, etc.) showed "Team {id}" instead of the team name; title/OG/Twitter meta now use the team name fetched server-side, falling back to "Team {id}" if the lookup fails
+
 ## [1.3.0] — 2026-03-05
 
 ### Added
