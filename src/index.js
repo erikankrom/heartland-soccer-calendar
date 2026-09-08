@@ -231,7 +231,9 @@ function parseEventsFromHTML(html) {
     const event = parseVEvent(icalData);
     if (event) events.push(event);
   }
-  return events;
+  // Upstream emits games in schedule-entry order, so reschedules land out of sequence. Sort by DTSTART.
+  const dtKey = e => e.dtstart.split(':').pop();
+  return events.sort((a, b) => dtKey(a).localeCompare(dtKey(b)));
 }
 
 function parseVEvent(icalText) {
@@ -368,6 +370,8 @@ function parseResultsHTML(html, teamId) {
       oppScore: scored ? Number(oppScore) : null,
     });
   }
+
+  games.sort((a, b) => a.date.localeCompare(b.date));
 
   // Compute W-L-T record from scored games
   let wins = 0, losses = 0, ties = 0;
