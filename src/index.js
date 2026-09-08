@@ -37,7 +37,7 @@ export default {
     // --- Subscription links page ---
     const subscribeMatch = path.match(/^\/subscribe\/(\d+)\/?$/);
     if (subscribeMatch) {
-      return handleSubscribePage(subscribeMatch[1], url, env);
+      return await handleSubscribePage(subscribeMatch[1], url, env);
     }
 
     // --- Landing page ---
@@ -166,8 +166,9 @@ async function handleTeamAPI(teamId, origin, ctx) {
   }
 }
 
-function handleSubscribePage(teamId, url, env) {
-  return new Response(renderSubscribePage(teamId, url, env), {
+async function handleSubscribePage(teamId, url, env) {
+  const teamName = await fetchTeamInfo(teamId).then(info => info.teamName).catch(() => null);
+  return new Response(renderSubscribePage(teamId, url, env, teamName), {
     headers: { 'Content-Type': 'text/html; charset=utf-8' },
   });
 }
@@ -1188,7 +1189,7 @@ ${FOOTER}
 
 // ─── Subscribe Page ─────────────────────────────────────────────────────────
 
-function renderSubscribePage(teamId, url, env) {
+function renderSubscribePage(teamId, url, env, teamName) {
   const webcalUrl = `webcal://${url.host}/calendar/${teamId}`;
   const httpsUrl = `${url.origin}/calendar/${teamId}`;
   const skeletonRows = Array(4).fill(`
@@ -1197,8 +1198,9 @@ function renderSubscribePage(teamId, url, env) {
       <div class="skeleton-lines"><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div></div>
     </div>`).join('');
 
-  const pageTitle = `Team ${escapeHtml(teamId)} \u2013 Heartland Soccer Team Calendars`;
-  const pageDesc = `Subscribe to Heartland Soccer team ${escapeHtml(teamId)}\u2019s schedule. Scores, standings, and game details sync automatically to Apple Calendar, Google Calendar, or Outlook.`;
+  const displayName = teamName ? escapeHtml(teamName) : `Team ${escapeHtml(teamId)}`;
+  const pageTitle = `${displayName} \u2013 Heartland Soccer Team Calendars`;
+  const pageDesc = `Subscribe to Heartland Soccer team ${displayName}\u2019s schedule. Scores, standings, and game details sync automatically to Apple Calendar, Google Calendar, or Outlook.`;
   const imageUrl = `${url.origin}/og-image.png`;
   const ogMeta = `<meta property="og:title" content="${pageTitle}">
 <meta property="og:description" content="${pageDesc}">
