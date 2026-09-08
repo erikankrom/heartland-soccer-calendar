@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - Subscribe page link previews (iMessage, etc.) showed "Team {id}" instead of the team name; title/OG/Twitter meta now use the team name fetched server-side, falling back to "Team {id}" if the lookup fails
+- Rescheduled games appeared out of order; events and results are now sorted chronologically at parse time, so the iCal feed, API, and subscribe page all list games by date (#7)
 
 ## [1.3.0] — 2026-03-05
 
